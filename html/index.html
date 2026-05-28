@@ -5,14 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PoseAlert AI — Nhận diện tư thế ngồi học</title>
 
-    <!--
-    ================================================================
-    LƯU Ý ĐƯỜNG DẪN:
-      File HTML này nằm ở html/index.html
-      → CSS và JS phải dùng tiền tố "../" để lùi 1 cấp ra ngoài
-    ================================================================
-    -->
-
     <!-- ===================== CSS ===================== -->
     <!-- Font từ Google Fonts (Orbitron + JetBrains Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,7 +14,6 @@
     <link rel="stylesheet" href="../css/style.css" />
 
     <!-- ===================== MEDIAPIPE CDN =====================
-         Thứ tự LOAD SCRIPT RẤT QUAN TRỌNG:
            1. camera_utils  — Camera utility, quản lý vòng lặp frame
            2. drawing_utils — drawConnectors, drawLandmarks
            3. pose          — Model Pose, class Pose, POSE_CONNECTIONS
@@ -135,12 +126,12 @@
                  CỘT PHẢI: Metrics + Placeholders cho teammates
             ================================================ -->
         <aside class="sidebar">
-          <!-- --- METRIC CARDS (Góc cổ + Lệch vai + Cong lưng) --- -->
+          <!-- --- METRIC CARDS (Góc cổ + Lệch vai + Mắt quá gần) --- -->
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Góc cổ</div>
               <div class="metric-value" id="neck-angle-value">--</div>
-              <div class="metric-threshold">Ngưỡng: &lt; 65° → Cúi đầu</div>
+              <div class="metric-threshold">Ngưỡng: &lt; 61° → Cúi đầu</div>
               <span class="metric-icon">🔻</span>
             </div>
 
@@ -152,25 +143,26 @@
             </div>
 
             <div class="metric-card" style="grid-column: 1 / -1">
-              <div class="metric-label">Tỉ lệ cong lưng (Mũi / Vai)</div>
+              <div class="metric-label">Khoảng cách mắt (% khung hình)</div>
               <!--
-                            ID: hunch-ratio-value
-                            Công thức: (shoulderMidY - nose.y) / shoulderWidth
-                            Bình thường: ≥ 0.65 | Cong lưng: < 0.65
+                            ID: eye-distance-value
+                            Công thức: sqrt((lx-rx)² + (ly-ry)²) / canvasWidth × 100
+                            Càng lớn = mặt càng gần camera = ngồi quá gần màn hình
+                            Bình thường: ≤ 20%  |  Quá gần: > 20%
                         -->
-              <div class="metric-value" id="hunch-ratio-value">--</div>
-              <div class="metric-threshold">Ngưỡng: &lt; 0.65 → Cong lưng</div>
-              <span class="metric-icon">🫀</span>
+              <div class="metric-value" id="eye-distance-value">--</div>
+              <div class="metric-threshold">
+                Ngưỡng: &gt; 20% → Mắt gần màn hình
+              </div>
+              <span class="metric-icon">👁</span>
             </div>
           </div>
           <!-- /.metrics-grid -->
 
           <!-- ============================================
                      PLACEHOLDER — TIMER CẢNH BÁO 30S
-                     Phụ trách: Thành viên nhóm (Timer module)
                      Biến toàn cục cần dùng:
                        - currentPoseStatus  (string)
-                     Gợi ý: Gắn ID="timer-section" để viết JS vào
                 ============================================ -->
           <div class="section-card" id="timer-section">
             <div class="section-card-header">
@@ -181,16 +173,12 @@
               <div class="module-placeholder">
                 <span class="ph-icon">⏱</span>
                 <div class="ph-name">TIMER 30S MODULE</div>
-                <div style="margin-top: 6px; font-size: 10px">
-                  Đọc: <code>currentPoseStatus</code>
-                </div>
               </div>
             </div>
           </div>
 
           <!-- ============================================
                      PLACEHOLDER — DASHBOARD (CHART.JS)
-                     Phụ trách: Thành viên nhóm (Dashboard module)
                      Biến toàn cục cần dùng:
                        - currentPoseStatus   (string)
                        - currentNeckAngle    (number, độ)
@@ -204,19 +192,13 @@
             <div class="section-card-body">
               <div class="module-placeholder">
                 <span class="ph-icon">📊</span>
-                <div class="ph-name">CHART.JS DASHBOARD</div>
-                <div style="margin-top: 6px; font-size: 10px">
-                  Đọc: <code>currentNeckAngle</code>,
-                  <code>currentShoulderDiff</code>
-                </div>
+                <div class="ph-name">DASHBOARD</div>
               </div>
             </div>
           </div>
 
           <!-- ============================================
                      PLACEHOLDER — POMODORO TIMER
-                     Phụ trách: Thành viên nhóm (Pomodoro module)
-                     Gợi ý: Module này độc lập, không cần biến AI
                 ============================================ -->
           <div class="section-card" id="pomodoro-section">
             <div class="section-card-header">
@@ -237,8 +219,8 @@
 
       <!-- ---- FOOTER ---- -->
       <footer class="app-footer">
-        <span>PoseAlert AI &copy; 2025 — Bài tập lớn Web tĩnh</span>
-        <span>MediaPipe Pose + Vanilla JS — Không có backend</span>
+        <span>PoseAlert AI &copy; 2026</span>
+        <span></span>
       </footer>
     </div>
     <!-- /.app-wrapper -->
@@ -265,10 +247,10 @@
         <script src="../js/pomodoro.js"></script>    ← Pomodoro
 
         Biến toàn cục đã sẵn sàng để đọc:
-          window.currentPoseStatus   → "ĐÚNG"|"CÚI ĐẦU"|"CONG LƯNG"|"VẸO LƯNG"
-          window.currentNeckAngle    → số thực (độ),  ví dụ: 72.4
-          window.currentShoulderDiff → số thực (pixel), ví dụ: 15.3
-          window.currentHunchRatio   → số thực, ví dụ: 0.87 (bình thường ≥ 0.65)
+          window.currentPoseStatus       → "ĐÚNG"|"CÚI ĐẦU"|"MẮT GẦN MÀN HÌNH"|"VẸO LƯNG"
+          window.currentNeckAngle         → số thực (độ),  ví dụ: 72.4
+          window.currentShoulderDiff      → số thực (pixel), ví dụ: 15.3
+          window.currentEyeDistanceRatio  → số thực 0–1, ví dụ: 0.14 (bình thường ≤ 0.20)
         ============================================================
     -->
 
@@ -305,7 +287,7 @@
           const iconMap = {
             ĐÚNG: "✅",
             "CÚI ĐẦU": "⚠️",
-            "CONG LƯNG": "⚠️",
+            "MẮT GẦN MÀN HÌNH": "👁️",
             "VẸO LƯNG": "⚠️",
             "KHÔNG RÕ": "🔍",
             "CHƯA PHÁT HIỆN": "⏳",
