@@ -1,0 +1,117 @@
+/* ============================================================
+   FILE: css/dashboard.css
+   MÔ TẢ: Giao diện Module Dashboard Thống Kê Chart.js
+   ============================================================ */
+
+/* --- Hàng thống kê nhanh (tỉ lệ đúng/sai) --- */
+.dash-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dash-stat-card {
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.dash-stat-label {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: var(--clr-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.dash-stat-value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dash-stat-value.good {
+  color: var(--clr-green);
+}
+.dash-stat-value.bad {
+  color: var(--clr-red);
+}
+.dash-stat-value.ratio {
+  color: var(--clr-cyan);
+}
+
+/* --- Canvas biểu đồ --- */
+.dash-chart-wrap {
+  background: var(--clr-bg-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 12px;
+  padding: 12px;
+  position: relative;
+}
+
+.dash-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dash-chart-title {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--clr-text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Chấm live nhỏ góc phải biểu đồ */
+.dash-live-dot {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: var(--clr-green);
+  letter-spacing: 1px;
+}
+
+.dash-live-dot::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--clr-green);
+  animation: pulse-anim 1.2s ease-in-out infinite;
+}
+
+/* Canvas tự điều chỉnh chiều cao */
+#dashboard-chart-canvas {
+  max-height: 180px;
+  width: 100% !important;
+}
+
+/* Thanh legend thủ công phía dưới */
+.dash-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.dash-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: var(--clr-text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.dash-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}

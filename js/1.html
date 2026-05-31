@@ -1,0 +1,1501 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PoseAlert AI — Cảnh báo tư thế ngồi học</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --bg: #080d18;
+        --s1: #0f1623;
+        --s2: #161e2e;
+        --s3: #1c2740;
+        --border: #1e3055;
+        --acc: #00d4ff;
+        --acc2: #00ff9d;
+        --warn: #ff4060;
+        --warn2: #ff8c42;
+        --txt: #ddeeff;
+        --txt2: #7a9bbf;
+        --txt3: #3d5a7a;
+        --mono: "Space Mono", monospace;
+        --sans: "Be Vietnam Pro", sans-serif;
+        --r: 12px;
+      }
+      body {
+        background: var(--bg);
+        color: var(--txt);
+        font-family: var(--sans);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0, 212, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 212, 255, 0.025) 1px, transparent 1px);
+        background-size: 48px 48px;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 18px 16px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .logo-icon {
+        width: 38px;
+        height: 38px;
+        background: linear-gradient(135deg, var(--acc), var(--acc2));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+      .logo-name {
+        font-family: var(--mono);
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+      .logo-name span {
+        color: var(--acc);
+      }
+      .logo-sub {
+        font-size: 11px;
+        color: var(--txt3);
+        margin-top: 1px;
+      }
+      .hdr-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        font-family: var(--mono);
+        font-size: 10px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        color: var(--txt2);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--txt3);
+        transition: all 0.3s;
+      }
+      .dot.on {
+        background: var(--acc2);
+        box-shadow: 0 0 8px var(--acc2);
+      }
+      .dot.warn {
+        background: var(--warn);
+        box-shadow: 0 0 8px var(--warn);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 14px;
+        align-items: start;
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: var(--s1);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+      .card:last-child {
+        margin-bottom: 0;
+      }
+      .card-hd {
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .card-hd-title {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--acc);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .card-bd {
+        padding: 14px 16px;
+      }
+
+      .cam-wrap {
+        position: relative;
+        background: #040810;
+        min-height: 340px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #output-canvas {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .cam-placeholder {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--txt3);
+      }
+      .cam-placeholder .ico {
+        font-size: 44px;
+        margin-bottom: 10px;
+        opacity: 0.4;
+      }
+      .cam-placeholder p {
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .alert-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .alert-overlay.show {
+        opacity: 1;
+      }
+      .alert-banner {
+        background: rgba(255, 64, 96, 0.92);
+        backdrop-filter: blur(8px);
+        padding: 12px 28px;
+        border-radius: 40px;
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+        animation: pulse 0.9s ease-in-out infinite;
+      }
+      .alert-sub {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        color: #ffd0d8;
+        font-family: var(--mono);
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.04);
+        }
+      }
+
+      .good-indicator {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(0, 255, 157, 0.12);
+        border: 1px solid rgba(0, 255, 157, 0.3);
+        border-radius: 20px;
+        padding: 5px 14px;
+        opacity: 0;
+        transition: opacity 0.4s;
+      }
+      .good-indicator.show {
+        opacity: 1;
+      }
+      .good-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--acc2);
+        box-shadow: 0 0 8px var(--acc2);
+        animation: blink 1.5s ease-in-out infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .good-txt {
+        font-size: 12px;
+        color: var(--acc2);
+        font-family: var(--mono);
+      }
+
+      .countdown-wrap {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0 16px 10px;
+      }
+      .countdown-label {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--warn2);
+        margin-bottom: 4px;
+      }
+      .countdown-bar-bg {
+        height: 5px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .countdown-bar {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s linear;
+        background: linear-gradient(90deg, var(--warn2), var(--warn));
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .metric {
+        background: var(--s2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      .metric-label {
+        font-size: 11px;
+        color: var(--txt3);
+        font-family: var(--mono);
+        margin-bottom: 4px;
+      }
+      .metric-value {
+        font-family: var(--mono);
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--acc);
+      }
+      .metric-value.warn {
+        color: var(--warn);
+      }
+      .metric-value.ok {
+        color: var(--acc2);
+      }
+      .metric-sub {
+        font-size: 10px;
+        color: var(--txt3);
+        margin-top: 2px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .stat {
+        background: var(--s2);
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+      }
+      .stat-val {
+        font-family: var(--mono);
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--acc);
+        line-height: 1;
+      }
+      .stat-val.w {
+        color: var(--warn);
+      }
+      .stat-val.g {
+        color: var(--acc2);
+      }
+      .stat-lbl {
+        font-size: 10px;
+        color: var(--txt3);
+        margin-top: 4px;
+        line-height: 1.3;
+      }
+
+      .pose-status {
+        text-align: center;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        font-family: var(--mono);
+        font-size: 16px;
+        font-weight: 700;
+        transition: all 0.3s;
+      }
+      .pose-status.good {
+        background: rgba(0, 255, 157, 0.1);
+        color: var(--acc2);
+        border: 1px solid rgba(0, 255, 157, 0.3);
+      }
+      .pose-status.bad {
+        background: rgba(255, 64, 96, 0.1);
+        color: var(--warn);
+        border: 1px solid rgba(255, 64, 96, 0.3);
+      }
+      .pose-status.warning {
+        background: rgba(255, 140, 66, 0.1);
+        color: var(--warn2);
+        border: 1px solid rgba(255, 140, 66, 0.3);
+      }
+
+      .pred-item {
+        margin-bottom: 12px;
+      }
+      .pred-item:last-child {
+        margin-bottom: 0;
+      }
+      .pred-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+      .pred-name {
+        font-size: 12px;
+        color: var(--txt);
+      }
+      .pred-pct {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--txt2);
+      }
+      .bar-bg {
+        height: 5px;
+        background: var(--s3);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.2s ease;
+      }
+      .bar-ok {
+        background: linear-gradient(90deg, var(--acc2), var(--acc));
+      }
+      .bar-warn {
+        background: linear-gradient(90deg, var(--warn2), var(--warn));
+      }
+
+      .chart-wrap {
+        position: relative;
+        height: 160px;
+      }
+
+      .pomo-display {
+        text-align: center;
+        padding: 14px 0 8px;
+      }
+      .pomo-time {
+        font-family: var(--mono);
+        font-size: 34px;
+        font-weight: 700;
+        color: var(--acc);
+        letter-spacing: 2px;
+      }
+      .pomo-phase {
+        font-size: 11px;
+        color: var(--txt3);
+        margin-top: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .pomo-btns {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-weight: 700;
+        transition: all 0.2s;
+        letter-spacing: 0.5px;
+      }
+      .btn-acc {
+        background: linear-gradient(135deg, var(--acc), #0099cc);
+        color: #000;
+      }
+      .btn-acc:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3);
+      }
+      .btn-acc:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--txt2);
+      }
+      .btn-outline:hover {
+        border-color: var(--acc);
+        color: var(--acc);
+      }
+      .btn-danger {
+        background: transparent;
+        border: 1px solid var(--warn);
+        color: var(--warn);
+      }
+      .btn-danger:hover {
+        background: rgba(255, 64, 96, 0.1);
+      }
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 10px;
+      }
+
+      .setting-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .setting-row:last-child {
+        border-bottom: none;
+      }
+      .setting-label {
+        font-size: 12px;
+        color: var(--txt2);
+      }
+      .toggle {
+        position: relative;
+        width: 34px;
+        height: 20px;
+      }
+      .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle-sl {
+        position: absolute;
+        inset: 0;
+        background: var(--s3);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .toggle-sl::before {
+        content: "";
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        left: 3px;
+        top: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.2s;
+      }
+      .toggle input:checked + .toggle-sl {
+        background: var(--acc);
+      }
+      .toggle input:checked + .toggle-sl::before {
+        transform: translateX(14px);
+      }
+      input[type="range"] {
+        accent-color: var(--acc);
+        width: 100%;
+      }
+      .range-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+      }
+      .range-row label {
+        font-size: 11px;
+        color: var(--txt2);
+        white-space: nowrap;
+        min-width: 110px;
+      }
+      .range-val {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--acc);
+        min-width: 32px;
+        text-align: right;
+      }
+
+      .log-list {
+        max-height: 130px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+      }
+      .log-item {
+        display: flex;
+        gap: 8px;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 11px;
+      }
+      .log-item:last-child {
+        border-bottom: none;
+      }
+      .log-time {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--txt3);
+        white-space: nowrap;
+        margin-top: 1px;
+      }
+      .log-msg.bad {
+        color: var(--warn);
+      }
+      .log-empty {
+        text-align: center;
+        color: var(--txt3);
+        font-size: 12px;
+        padding: 16px 0;
+      }
+
+      .load-bar {
+        height: 2px;
+        background: linear-gradient(90deg, var(--acc), var(--acc2), var(--acc));
+        background-size: 200% 100%;
+        animation: shimmer 1.2s infinite;
+        display: none;
+      }
+      .load-bar.show {
+        display: block;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+      .modal-overlay.show {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: var(--s1);
+        border: 1px solid var(--warn);
+        border-radius: 16px;
+        padding: 28px 32px;
+        max-width: 340px;
+        text-align: center;
+      }
+      .modal-icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+      }
+      .modal-title {
+        font-family: var(--mono);
+        font-size: 16px;
+        color: var(--warn);
+        margin-bottom: 8px;
+      }
+      .modal-msg {
+        font-size: 13px;
+        color: var(--txt2);
+        line-height: 1.6;
+        margin-bottom: 18px;
+      }
+
+      #fps-badge {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--txt3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="logo">
+          <div class="logo-icon">🧘</div>
+          <div>
+            <div class="logo-name">Pose<span>Alert</span> AI</div>
+            <div class="logo-sub">
+              Cảnh báo tư thế ngồi học · MediaPipe Pose
+            </div>
+          </div>
+        </div>
+        <div class="hdr-right">
+          <div class="badge">
+            <div class="dot" id="dot"></div>
+            <span id="status-badge">Chưa khởi động</span>
+          </div>
+          <span id="fps-badge">-- FPS</span>
+          <button class="btn btn-acc" id="btn-start" onclick="startApp()">
+            ▶ Bắt đầu
+          </button>
+          <button
+            class="btn btn-danger btn-sm"
+            id="btn-stop"
+            onclick="stopApp()"
+            style="display: none"
+          >
+            ■ Dừng
+          </button>
+        </div>
+      </header>
+      <div class="load-bar" id="load-bar"></div>
+
+      <div class="grid">
+        <div>
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-hd-title">📷 Camera realtime</span>
+              <button class="btn btn-outline btn-sm" onclick="resetStats()">
+                ↺ Reset
+              </button>
+            </div>
+            <div class="cam-wrap" id="cam-wrap">
+              <div class="cam-placeholder" id="placeholder">
+                <div class="ico">📷</div>
+                <p>
+                  Nhấn <strong>Bắt đầu</strong> để khởi động camera<br />và nhận
+                  diện tư thế ngồi
+                </p>
+              </div>
+              <canvas id="output-canvas" style="display: none"></canvas>
+
+              <div class="alert-overlay" id="alert-overlay">
+                <div class="alert-banner">⚠ Ngồi sai tư thế!</div>
+                <div class="alert-sub" id="alert-sub">Hãy ngồi thẳng lại</div>
+              </div>
+              <div class="good-indicator" id="good-ind">
+                <div class="good-dot"></div>
+                <span class="good-txt">Tư thế tốt</span>
+              </div>
+              <div
+                class="countdown-wrap"
+                id="countdown-wrap"
+                style="display: none"
+              >
+                <div class="countdown-label" id="countdown-label">
+                  Ngồi sai: 0s / 30s
+                </div>
+                <div class="countdown-bar-bg">
+                  <div
+                    class="countdown-bar"
+                    id="countdown-bar"
+                    style="width: 0%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pose-status good" id="pose-status">✅ TƯ THẾ ĐÚNG</div>
+
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-label">GÓC CỔ (Ear→Shoulder)</div>
+              <div class="metric-value" id="m-neck">--°</div>
+              <div class="metric-sub">
+                Ngưỡng: &gt;<span id="td-neck">20</span>° = cúi đầu
+              </div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">ĐỘ VẸO VAI</div>
+              <div class="metric-value" id="m-shoulder">--%</div>
+              <div class="metric-sub">
+                Ngưỡng: &gt;<span id="td-sh">5</span>% = lệch vai
+              </div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">MẮT GẦN MÀN HÌNH</div>
+              <div class="metric-value" id="m-dist">--</div>
+              <div class="metric-sub">
+                Ngưỡng: &gt;<span id="td-dist">0.25</span> = quá gần
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-hd-title">🔍 Phân tích tư thế</span>
+            </div>
+            <div class="card-bd">
+              <div id="pred-list">
+                <div class="log-empty">Chưa có dữ liệu</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-hd-title">📊 Thống kê buổi học</span>
+            </div>
+            <div class="card-bd">
+              <div class="stats-grid">
+                <div class="stat">
+                  <div class="stat-val g" id="s-good">0%</div>
+                  <div class="stat-lbl">Ngồi đúng</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-val w" id="s-bad">0%</div>
+                  <div class="stat-lbl">Ngồi sai</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-val" id="s-alerts">0</div>
+                  <div class="stat-lbl">Lần cảnh báo</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-val" id="s-time">00:00</div>
+                  <div class="stat-lbl">Thời gian</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-hd-title">📈 Biểu đồ tư thế</span>
+            </div>
+            <div class="card-bd" style="padding: 10px 14px">
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: 140px 1fr;
+                  gap: 12px;
+                  align-items: center;
+                "
+              >
+                <canvas id="doughnut-chart" width="140" height="140"></canvas>
+                <div class="chart-wrap"><canvas id="line-chart"></canvas></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-hd-title">🍅 Pomodoro Timer</span>
+            </div>
+            <div class="card-bd">
+              <div class="pomo-display">
+                <div class="pomo-time" id="pomo-time">25:00</div>
+                <div class="pomo-phase" id="pomo-phase">Tập trung học</div>
+              </div>
+              <div class="pomo-btns">
+                <button
+                  class="btn btn-acc btn-sm"
+                  id="pomo-btn"
+                  onclick="pomoAction()"
+                >
+                  ▶ Bắt đầu
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="pomoReset()">
+                  ↺ Reset
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="pomoSkip()">
+                  ⏭ Skip
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-hd-title">⚙ Cài đặt</span>
+            </div>
+            <div class="card-bd">
+              <div class="range-row">
+                <label>Cảnh báo sau (giây)</label>
+                <input
+                  type="range"
+                  min="5"
+                  max="60"
+                  value="30"
+                  id="r-timer"
+                  oninput="
+                    CFG.warnAfter = +this.value;
+                    document.getElementById('rv-timer').textContent =
+                      this.value + 's';
+                  "
+                />
+                <span class="range-val" id="rv-timer">30s</span>
+              </div>
+              <div class="range-row">
+                <label>Ngưỡng góc cổ</label>
+                <input
+                  type="range"
+                  min="10"
+                  max="40"
+                  value="20"
+                  id="r-neck"
+                  oninput="
+                    CFG.threshNeck = +this.value;
+                    document.getElementById('rv-neck').textContent =
+                      this.value + '°';
+                    document.getElementById('td-neck').textContent = this.value;
+                  "
+                />
+                <span class="range-val" id="rv-neck">20°</span>
+              </div>
+              <div class="setting-row">
+                <span class="setting-label">🔊 Âm thanh cảnh báo</span>
+                <label class="toggle"
+                  ><input type="checkbox" id="t-sound" checked /><span
+                    class="toggle-sl"
+                  ></span
+                ></label>
+              </div>
+              <div class="setting-row">
+                <span class="setting-label">💬 Popup cảnh báo</span>
+                <label class="toggle"
+                  ><input type="checkbox" id="t-popup" checked /><span
+                    class="toggle-sl"
+                  ></span
+                ></label>
+              </div>
+              <div class="setting-row">
+                <span class="setting-label">🦴 Hiện skeleton</span>
+                <label class="toggle"
+                  ><input type="checkbox" id="t-skel" checked /><span
+                    class="toggle-sl"
+                  ></span
+                ></label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd">
+              <span class="card-hd-title">📋 Lịch sử cảnh báo</span>
+              <button class="btn btn-outline btn-sm" onclick="clearLog()">
+                Xoá
+              </button>
+            </div>
+            <div class="card-bd" style="padding: 8px 14px">
+              <div class="log-list" id="log-list">
+                <div class="log-empty">Chưa có cảnh báo</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+      <div class="modal">
+        <div class="modal-icon">⚠️</div>
+        <div class="modal-title">Tư thế sai!</div>
+        <div class="modal-msg" id="modal-msg">
+          Hãy điều chỉnh lại tư thế ngồi!
+        </div>
+        <button class="btn btn-acc" onclick="closeModal()">Đã hiểu</button>
+      </div>
+    </div>
+
+    <audio id="alarm-audio" preload="auto">
+      <source
+        src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
+      />
+    </audio>
+
+    <video id="input-video" style="display: none" autoplay playsinline></video>
+
+    <script>
+      const CFG = {
+        threshNeck: 20,
+        threshShoulder: 0.05,
+        threshEarWidth: 0.25,
+        warnAfter: 30,
+        debounce: 8,
+      };
+
+      let pose,
+        camera,
+        isRunning = false;
+      let badTime = 0,
+        lastFrameT = Date.now();
+      let lastAlertT = 0;
+      let goodFrames = 0,
+        badFrames = 0;
+      let alertCount = 0;
+      let startTime = null,
+        timerInterval = null;
+      let logs = [];
+      let frameCount = 0,
+        lastFpsT = Date.now(),
+        fps = 0;
+
+      const CHART_LEN = 60;
+      let lineData = Array(CHART_LEN).fill(0);
+      let lineLabels = Array(CHART_LEN).fill("");
+      let chartTick = 0;
+
+      const doughnutChart = new Chart(
+        document.getElementById("doughnut-chart").getContext("2d"),
+        {
+          type: "doughnut",
+          data: {
+            labels: ["Đúng tư thế", "Sai tư thế"],
+            datasets: [
+              {
+                data: [0, 0],
+                backgroundColor: ["#00ff9d", "#ff4060"],
+                borderWidth: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: { color: "#7a9bbf", font: { size: 9 }, boxWidth: 10 },
+              },
+            },
+          },
+        },
+      );
+
+      const lineChart = new Chart(
+        document.getElementById("line-chart").getContext("2d"),
+        {
+          type: "line",
+          data: {
+            labels: lineLabels,
+            datasets: [
+              {
+                label: "% Sai",
+                data: lineData,
+                borderColor: "#ff4060",
+                backgroundColor: "rgba(255,64,96,.15)",
+                borderWidth: 1.5,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            scales: {
+              x: { display: false },
+              y: {
+                min: 0,
+                max: 100,
+                ticks: { color: "#3d5a7a", font: { size: 9 } },
+                grid: { color: "rgba(30,48,85,.5)" },
+              },
+            },
+            plugins: { legend: { display: false } },
+          },
+        },
+      );
+
+      setInterval(() => {
+        if (!isRunning) return;
+        const total = goodFrames + badFrames;
+        const pct = total > 0 ? Math.round((badFrames / total) * 100) : 0;
+        lineData.push(pct);
+        lineData.shift();
+        lineLabels.push(++chartTick + "s");
+        lineLabels.shift();
+        lineChart.update("none");
+      }, 1000);
+
+      async function startApp() {
+        setStatus("Đang tải MediaPipe...", false, false);
+        document.getElementById("load-bar").classList.add("show");
+        document.getElementById("btn-start").disabled = true;
+
+        try {
+          pose = new Pose({
+            locateFile: (f) =>
+              `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`,
+          });
+          pose.setOptions({
+            modelComplexity: 1,
+            smoothLandmarks: true,
+            enableSegmentation: false,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+          });
+          pose.onResults(onResults);
+
+          const video = document.getElementById("input-video");
+          camera = new Camera(video, {
+            onFrame: async () => {
+              await pose.send({ image: video });
+            },
+            width: 1280,
+            height: 720,
+          });
+          await camera.start();
+
+          document.getElementById("placeholder").style.display = "none";
+          document.getElementById("output-canvas").style.display = "block";
+          document.getElementById("load-bar").classList.remove("show");
+          document.getElementById("btn-start").style.display = "none";
+          document.getElementById("btn-stop").style.display = "";
+          isRunning = true;
+          startTime = Date.now();
+          timerInterval = setInterval(updateTimer, 1000);
+          setStatus("Đang theo dõi", true, false);
+        } catch (e) {
+          document.getElementById("load-bar").classList.remove("show");
+          document.getElementById("btn-start").disabled = false;
+          setStatus("Lỗi khởi động", false, false);
+          alert("Không khởi động được camera.\n" + e.message);
+        }
+      }
+
+      function stopApp() {
+        isRunning = false;
+        if (camera) camera.stop();
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById("output-canvas").style.display = "none";
+        document.getElementById("placeholder").style.display = "";
+        document.getElementById("btn-stop").style.display = "none";
+        document.getElementById("btn-start").style.display = "";
+        document.getElementById("btn-start").disabled = false;
+        hideAlerts();
+        setStatus("Đã dừng", false, false);
+      }
+
+      function calcNeckAngle(ear, shoulder) {
+        const dx = ear.x - shoulder.x;
+        const dy = shoulder.y - ear.y;
+        return (Math.atan2(Math.abs(dx), Math.max(dy, 0.001)) * 180) / Math.PI;
+      }
+
+      function calcDist(a, b) {
+        return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+      }
+
+      function onResults(results) {
+        if (!isRunning) return;
+
+        const canvas = document.getElementById("output-canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = results.image.width;
+        canvas.height = results.image.height;
+
+        ctx.save();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(results.image, 0, 0);
+
+        frameCount++;
+        const nowMs = Date.now();
+        if (nowMs - lastFpsT > 1000) {
+          fps = frameCount;
+          frameCount = 0;
+          lastFpsT = nowMs;
+          document.getElementById("fps-badge").textContent = fps + " FPS";
+        }
+
+        const dt = Math.min((nowMs - lastFrameT) / 1000, 0.5);
+        lastFrameT = nowMs;
+
+        if (!results.poseLandmarks) {
+          badTime = 0;
+          hideAlerts();
+          ctx.restore();
+          return;
+        }
+
+        const lm = results.poseLandmarks;
+
+        if (document.getElementById("t-skel").checked) {
+          drawConnectors(ctx, lm, POSE_CONNECTIONS, {
+            color: "#00d4ff",
+            lineWidth: 2,
+          });
+          drawLandmarks(ctx, lm, { color: "#00ff9d", lineWidth: 1, radius: 3 });
+        }
+
+        const leftEar = lm[7];
+        const rightEar = lm[8];
+        const leftSh = lm[11];
+        const rightSh = lm[12];
+
+        const neckAngle = calcNeckAngle(leftEar, leftSh);
+        const shoulderDiff = Math.abs(leftSh.y - rightSh.y);
+
+        const earWidth = calcDist(leftEar, rightEar);
+
+        let posture = "TƯ THẾ ĐÚNG";
+        let pClass = "good";
+        const reasons = [];
+
+        if (neckAngle > CFG.threshNeck) {
+          posture = "CÚI ĐẦU";
+          pClass = "bad";
+          reasons.push(`Cúi đầu (góc cổ ${neckAngle.toFixed(0)}°)`);
+        }
+        if (shoulderDiff > CFG.threshShoulder) {
+          posture = "GÙ / LỆCH VAI";
+          pClass = pClass === "bad" ? "bad" : "warning";
+          reasons.push(`Lệch vai (${(shoulderDiff * 100).toFixed(1)}%)`);
+        }
+        if (earWidth > CFG.threshEarWidth) {
+          posture = "MẮT QUÁ GẦN";
+          pClass = "bad";
+          reasons.push(`Mắt quá gần màn hình (${earWidth.toFixed(2)})`);
+        }
+
+        const isBad = pClass !== "good";
+
+        const ps = document.getElementById("pose-status");
+        const icons = { good: "✅", bad: "❌", warning: "⚠️" };
+        ps.textContent = icons[pClass] + " " + posture;
+        ps.className = "pose-status " + pClass;
+
+        setMetric(
+          "m-neck",
+          neckAngle.toFixed(1) + "°",
+          neckAngle > CFG.threshNeck,
+        );
+        setMetric(
+          "m-shoulder",
+          (shoulderDiff * 100).toFixed(1) + "%",
+          shoulderDiff > CFG.threshShoulder,
+        );
+        setMetric("m-dist", earWidth.toFixed(2), earWidth > CFG.threshEarWidth);
+
+        renderPredBars([
+          {
+            name: "Cúi đầu (góc cổ)",
+            val: Math.min(neckAngle / 40, 1),
+            bad: neckAngle > CFG.threshNeck,
+          },
+          {
+            name: "Lệch vai",
+            val: Math.min(shoulderDiff / 0.1, 1),
+            bad: shoulderDiff > CFG.threshShoulder,
+          },
+          {
+            name: "Mắt gần màn hình",
+            val: Math.min(earWidth / 0.35, 1),
+            bad: earWidth > CFG.threshEarWidth,
+          },
+        ]);
+
+        if (isBad) {
+          badFrames++;
+          badTime += dt;
+        } else {
+          goodFrames++;
+          badTime = 0;
+        }
+
+        updateStats();
+
+        if (isBad && badTime > 0 && badTime < CFG.warnAfter) {
+          const pct = (badTime / CFG.warnAfter) * 100;
+          document.getElementById("countdown-wrap").style.display = "block";
+          document.getElementById("countdown-label").textContent =
+            `Ngồi sai: ${badTime.toFixed(0)}s / ${CFG.warnAfter}s`;
+          document.getElementById("countdown-bar").style.width = pct + "%";
+          document.getElementById("good-ind").classList.remove("show");
+          document.getElementById("alert-overlay").classList.remove("show");
+        } else if (isBad && badTime >= CFG.warnAfter) {
+          document.getElementById("alert-overlay").classList.add("show");
+          document.getElementById("alert-sub").textContent =
+            reasons.join(" · ");
+          document.getElementById("countdown-wrap").style.display = "none";
+          document.getElementById("good-ind").classList.remove("show");
+
+          const nowSec = nowMs / 1000;
+          if (nowSec - lastAlertT >= CFG.debounce) {
+            lastAlertT = nowSec;
+            alertCount++;
+            document.getElementById("s-alerts").textContent = alertCount;
+            addLog(reasons.join(", "));
+            if (document.getElementById("t-sound").checked) playAlarm();
+            if (document.getElementById("t-popup").checked)
+              showModal(reasons.join("<br>"));
+          }
+        } else {
+          hideAlerts();
+          document.getElementById("good-ind").classList.add("show");
+        }
+
+        ctx.restore();
+      }
+
+      function setMetric(id, val, isBad) {
+        const el = document.getElementById(id);
+        el.textContent = val;
+        el.className = "metric-value" + (isBad ? " warn" : " ok");
+      }
+
+      function renderPredBars(items) {
+        document.getElementById("pred-list").innerHTML = items
+          .map(
+            (it) => `
+    <div class="pred-item">
+      <div class="pred-row">
+        <span class="pred-name">${it.name}</span>
+        <span class="pred-pct">${Math.round(it.val * 100)}%</span>
+      </div>
+      <div class="bar-bg">
+        <div class="bar-fill ${it.bad ? "bar-warn" : "bar-ok"}"
+             style="width:${Math.round(it.val * 100)}%"></div>
+      </div>
+    </div>`,
+          )
+          .join("");
+      }
+
+      function hideAlerts() {
+        document.getElementById("alert-overlay").classList.remove("show");
+        document.getElementById("countdown-wrap").style.display = "none";
+        document.getElementById("good-ind").classList.remove("show");
+      }
+
+      function updateStats() {
+        const total = goodFrames + badFrames;
+        const g = total > 0 ? Math.round((goodFrames / total) * 100) : 0;
+        const b = total > 0 ? Math.round((badFrames / total) * 100) : 0;
+        document.getElementById("s-good").textContent = g + "%";
+        document.getElementById("s-bad").textContent = b + "%";
+
+        doughnutChart.data.datasets[0].data = [g, b];
+        doughnutChart.update("none");
+      }
+
+      function updateTimer() {
+        if (!startTime) return;
+        const e = Math.floor((Date.now() - startTime) / 1000);
+        const m = String(Math.floor(e / 60)).padStart(2, "0");
+        const s = String(e % 60).padStart(2, "0");
+        document.getElementById("s-time").textContent = m + ":" + s;
+      }
+
+      function addLog(msg) {
+        const t = new Date().toTimeString().slice(0, 8);
+        logs.unshift({ t, msg });
+        if (logs.length > 30) logs.pop();
+        document.getElementById("log-list").innerHTML = logs
+          .map(
+            (l) =>
+              `<div class="log-item">
+      <span class="log-time">${l.t}</span>
+      <span class="log-msg bad">⚠ ${l.msg}</span>
+    </div>`,
+          )
+          .join("");
+      }
+
+      function clearLog() {
+        logs = [];
+        document.getElementById("log-list").innerHTML =
+          '<div class="log-empty">Chưa có cảnh báo</div>';
+      }
+
+      function resetStats() {
+        goodFrames = 0;
+        badFrames = 0;
+        alertCount = 0;
+        badTime = 0;
+        startTime = Date.now();
+        document.getElementById("s-alerts").textContent = "0";
+        clearLog();
+        lineData = Array(CHART_LEN).fill(0);
+        lineChart.data.datasets[0].data = [...lineData];
+        lineChart.update("none");
+        doughnutChart.data.datasets[0].data = [0, 0];
+        doughnutChart.update("none");
+      }
+
+      function setStatus(txt, active, warn) {
+        document.getElementById("status-badge").textContent = txt;
+        const d = document.getElementById("dot");
+        d.className = "dot" + (active ? " on" : warn ? " warn" : "");
+      }
+
+      function playAlarm() {
+        const audio = document.getElementById("alarm-audio");
+        audio.currentTime = 0;
+        audio.play().catch(() => {
+          try {
+            const ac = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ac.createOscillator();
+            const g = ac.createGain();
+            o.connect(g);
+            g.connect(ac.destination);
+            o.frequency.value = 880;
+            o.type = "sine";
+            g.gain.setValueAtTime(0.3, ac.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.6);
+            o.start();
+            o.stop(ac.currentTime + 0.6);
+          } catch (e) {}
+        });
+      }
+
+      function showModal(msg) {
+        document.getElementById("modal-msg").innerHTML =
+          "Bạn đang ngồi sai tư thế:<br><br>" +
+          msg +
+          "<br><br>Hãy điều chỉnh lại!";
+        document.getElementById("modal").classList.add("show");
+      }
+      function closeModal() {
+        document.getElementById("modal").classList.remove("show");
+      }
+
+      const POMO = [
+        { label: "Tập trung học", sec: 25 * 60 },
+        { label: "Nghỉ ngắn", sec: 5 * 60 },
+        { label: "Tập trung học", sec: 25 * 60 },
+        { label: "Nghỉ dài", sec: 15 * 60 },
+      ];
+      let pomoPhase = 0,
+        pomoSec = POMO[0].sec;
+      let pomoRunning = false,
+        pomoInterval = null;
+
+      function renderPomo() {
+        const m = String(Math.floor(pomoSec / 60)).padStart(2, "0");
+        const s = String(pomoSec % 60).padStart(2, "0");
+        document.getElementById("pomo-time").textContent = m + ":" + s;
+        document.getElementById("pomo-phase").textContent =
+          POMO[pomoPhase].label;
+      }
+
+      function pomoAction() {
+        if (pomoRunning) {
+          clearInterval(pomoInterval);
+          pomoRunning = false;
+          document.getElementById("pomo-btn").textContent = "▶ Bắt đầu";
+        } else {
+          pomoRunning = true;
+          document.getElementById("pomo-btn").textContent = "⏸ Tạm dừng";
+          pomoInterval = setInterval(() => {
+            pomoSec--;
+            if (pomoSec <= 0) {
+              pomoPhase = (pomoPhase + 1) % POMO.length;
+              pomoSec = POMO[pomoPhase].sec;
+              playAlarm();
+              showModal(
+                "Hết giờ " +
+                  POMO[(pomoPhase - 1 + 4) % 4].label +
+                  "!<br>Chuyển sang: <strong>" +
+                  POMO[pomoPhase].label +
+                  "</strong>",
+              );
+            }
+            renderPomo();
+          }, 1000);
+        }
+      }
+
+      function pomoReset() {
+        clearInterval(pomoInterval);
+        pomoRunning = false;
+        pomoSec = POMO[pomoPhase].sec;
+        renderPomo();
+        document.getElementById("pomo-btn").textContent = "▶ Bắt đầu";
+      }
+
+      function pomoSkip() {
+        clearInterval(pomoInterval);
+        pomoRunning = false;
+        pomoPhase = (pomoPhase + 1) % POMO.length;
+        pomoSec = POMO[pomoPhase].sec;
+        renderPomo();
+        document.getElementById("pomo-btn").textContent = "▶ Bắt đầu";
+      }
+
+      renderPomo();
+    </script>
+  </body>
+</html>

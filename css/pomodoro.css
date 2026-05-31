@@ -1,0 +1,184 @@
+/* ============================================================
+   FILE: css/pomodoro.css
+   MÔ TẢ: Giao diện Module Pomodoro Timer
+   ============================================================ */
+
+/* --- Vùng hiển thị chế độ (Tập trung / Nghỉ ngơi) --- */
+.pomo-mode-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pomo-mode-pill {
+  padding: 4px 14px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border: 1.5px solid transparent;
+  cursor: default;
+  transition: all 0.3s ease;
+  opacity: 0.35;
+}
+
+/* Pill active khi đang ở chế độ đó */
+.pomo-mode-pill.active-focus {
+  background: rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.4);
+  color: var(--clr-cyan);
+  opacity: 1;
+}
+
+.pomo-mode-pill.active-break {
+  background: var(--clr-green-dim);
+  border-color: rgba(22, 163, 74, 0.4);
+  color: var(--clr-green);
+  opacity: 1;
+}
+
+/* --- Mặt đồng hồ lớn --- */
+.pomo-clock-face {
+  text-align: center;
+  padding: 20px 16px;
+  background: var(--clr-bg-card);
+  border-radius: 16px;
+  border: 1.5px solid var(--clr-border);
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  transition:
+    border-color 0.4s,
+    background 0.4s;
+}
+
+/* Đường viền màu theo chế độ */
+.pomo-clock-face::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transition: background 0.4s;
+}
+
+.pomo-clock-face.focus::before {
+  background: var(--clr-cyan);
+}
+.pomo-clock-face.break::before {
+  background: var(--clr-green);
+}
+
+.pomo-clock-face.focus {
+  border-color: rgba(37, 99, 235, 0.3);
+}
+.pomo-clock-face.break {
+  border-color: rgba(22, 163, 74, 0.3);
+  background: var(--clr-green-dim);
+}
+
+.pomo-session-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  margin-bottom: 8px;
+}
+
+/* Hiển thị MM:SS to */
+.pomo-time-display {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 2px;
+  transition: color 0.4s;
+  color: var(--clr-cyan);
+}
+
+.pomo-clock-face.break .pomo-time-display {
+  color: var(--clr-green);
+}
+
+/* Số vòng Pomodoro đã hoàn thành */
+.pomo-rounds {
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--clr-text-muted);
+  letter-spacing: 1px;
+}
+
+.pomo-round-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--clr-border);
+  margin: 0 2px;
+  transition: background 0.3s;
+}
+
+.pomo-round-dot.done {
+  background: var(--clr-cyan);
+}
+
+/* --- Các nút điều khiển --- */
+.pomo-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.pomo-btn {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 10px;
+  border: 1.5px solid var(--clr-border);
+  background: var(--clr-bg-panel);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--clr-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.pomo-btn:hover {
+  border-color: var(--clr-cyan);
+  color: var(--clr-cyan);
+  background: var(--clr-cyan-dim);
+}
+
+.pomo-btn.primary {
+  background: var(--clr-cyan);
+  border-color: var(--clr-cyan);
+  color: #fff;
+}
+
+.pomo-btn.primary:hover {
+  opacity: 0.88;
+  color: #fff;
+}
+
+.pomo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- Thông báo nhỏ bên dưới --- */
+.pomo-hint {
+  text-align: center;
+  font-size: 10px;
+  color: var(--clr-text-muted);
+  margin-top: 10px;
+  letter-spacing: 0.5px;
+  min-height: 16px;
+  transition: color 0.3s;
+}

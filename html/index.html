@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PoseAlert AI — Nhận diện tư thế ngồi học</title>
 
+    <!--
+    ================================================================
+    LƯU Ý ĐƯỜNG DẪN:
+      File HTML này nằm ở html/index.html
+      → CSS và JS phải dùng tiền tố "../" để lùi 1 cấp ra ngoài
+    ================================================================
+    -->
+
     <!-- ===================== CSS ===================== -->
     <!-- Font từ Google Fonts (Orbitron + JetBrains Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,6 +22,7 @@
     <link rel="stylesheet" href="../css/style.css" />
 
     <!-- ===================== MEDIAPIPE CDN =====================
+         Thứ tự LOAD SCRIPT RẤT QUAN TRỌNG:
            1. camera_utils  — Camera utility, quản lý vòng lặp frame
            2. drawing_utils — drawConnectors, drawLandmarks
            3. pose          — Model Pose, class Pose, POSE_CONNECTIONS
@@ -76,6 +85,9 @@
                  CỘT TRÁI: Camera + Status Box
             ================================================ -->
         <section class="camera-section">
+          <!-- Slot nút Bắt đầu / Tạm dừng — được main.js nhúng vào tự động -->
+          <div id="session-controls"></div>
+
           <div class="camera-card">
             <div class="camera-card-header">
               <span class="label">
@@ -126,12 +138,12 @@
                  CỘT PHẢI: Metrics + Placeholders cho teammates
             ================================================ -->
         <aside class="sidebar">
-          <!-- --- METRIC CARDS (Góc cổ + Lệch vai + Mắt quá gần) --- -->
+          <!-- --- METRIC CARDS (Góc cổ + Lệch vai + Cong lưng) --- -->
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Góc cổ</div>
               <div class="metric-value" id="neck-angle-value">--</div>
-              <div class="metric-threshold">Ngưỡng: &lt; 61° → Cúi đầu</div>
+              <div class="metric-threshold">Ngưỡng: &lt; 65° → Cúi đầu</div>
               <span class="metric-icon">🔻</span>
             </div>
 
@@ -161,8 +173,10 @@
 
           <!-- ============================================
                      PLACEHOLDER — TIMER CẢNH BÁO 30S
+                     Phụ trách: Thành viên nhóm (Timer module)
                      Biến toàn cục cần dùng:
                        - currentPoseStatus  (string)
+                     Gợi ý: Gắn ID="timer-section" để viết JS vào
                 ============================================ -->
           <div class="section-card" id="timer-section">
             <div class="section-card-header">
@@ -179,6 +193,7 @@
 
           <!-- ============================================
                      PLACEHOLDER — DASHBOARD (CHART.JS)
+                     Phụ trách: Thành viên nhóm (Dashboard module)
                      Biến toàn cục cần dùng:
                        - currentPoseStatus   (string)
                        - currentNeckAngle    (number, độ)
@@ -192,13 +207,15 @@
             <div class="section-card-body">
               <div class="module-placeholder">
                 <span class="ph-icon">📊</span>
-                <div class="ph-name">DASHBOARD</div>
+                <div class="ph-name">CHART.JS DASHBOARD</div>
               </div>
             </div>
           </div>
 
           <!-- ============================================
                      PLACEHOLDER — POMODORO TIMER
+                     Phụ trách: Thành viên nhóm (Pomodoro module)
+                     Gợi ý: Module này độc lập, không cần biến AI
                 ============================================ -->
           <div class="section-card" id="pomodoro-section">
             <div class="section-card-header">
@@ -219,7 +236,7 @@
 
       <!-- ---- FOOTER ---- -->
       <footer class="app-footer">
-        <span>PoseAlert AI &copy; 2026</span>
+        <span>PoseAlert AI &copy; 2025</span>
         <span></span>
       </footer>
     </div>
@@ -237,6 +254,15 @@
 
     <!-- Module 2: Khởi động camera và vòng lặp MediaPipe -->
     <script src="../js/main.js"></script>
+
+    <!-- Module 3: Timer cảnh báo tư thế 30 giây -->
+    <script src="../js/timer.js"></script>
+
+    <!-- Module 4: Pomodoro Timer -->
+    <script src="../js/pomodoro.js"></script>
+
+    <!-- Module 5: Dashboard thống kê Chart.js -->
+    <script src="../js/dashboard.js"></script>
 
     <!--
         ============================================================
