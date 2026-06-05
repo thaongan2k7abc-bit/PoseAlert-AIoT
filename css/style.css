@@ -1,59 +1,50 @@
 /* ============================================================
    FILE: css/style.css
-   MÔ TẢ: Giao diện PoseAlert AI — Clean Light / Soft UI theme
+   THEME: Clean Light — Inter font — Blue/Indigo palette
    ============================================================ */
 
-/* --- Google Fonts --- */
-@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap");
 
-/* ================================================================
-   CSS CUSTOM PROPERTIES (Design Tokens — Light Theme)
-   ================================================================ */
+/* ────────────────────────────────────────────────────────────
+   DESIGN TOKENS
+──────────────────────────────────────────────────────────── */
 :root {
-  /* Backgrounds */
-  --clr-bg-deep: #f0f4f8;
-  --clr-bg-panel: #ffffff;
-  --clr-bg-card: #f7f9fc;
-  --clr-bg-card-2: #edf2f7;
-  --clr-border: #dde3ee;
-  --clr-border-glow: rgba(59, 130, 246, 0.2);
+  --bg: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-alt: #f8fafc;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
 
-  /* Accent Colors */
-  --clr-cyan: #2563eb;
-  --clr-cyan-dim: rgba(37, 99, 235, 0.08);
-  --clr-green: #16a34a;
-  --clr-green-dim: rgba(22, 163, 74, 0.08);
-  --clr-red: #dc2626;
-  --clr-red-dim: rgba(220, 38, 38, 0.08);
-  --clr-yellow: #d97706;
-  --clr-yellow-dim: rgba(217, 119, 6, 0.08);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59, 130, 246, 0.08);
+  --indigo: #6366f1;
+  --green: #22c55e;
+  --green-dim: rgba(34, 197, 94, 0.08);
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.08);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.08);
 
-  /* Typography */
-  --clr-text-primary: #1e2a3a;
-  --clr-text-secondary: #64748b;
-  --clr-text-muted: #a0aec0;
+  --text-1: #0f172a;
+  --text-2: #475569;
+  --text-3: #94a3b8;
 
-  /* Fonts */
-  --font-display: "Orbitron", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.04);
 
-  /* Shadows (replaces glow effects) */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
-  --shadow-blue:
-    0 0 0 3px rgba(37, 99, 235, 0.15), 0 4px 12px rgba(37, 99, 235, 0.1);
-  --shadow-green:
-    0 0 0 3px rgba(22, 163, 74, 0.15), 0 4px 12px rgba(22, 163, 74, 0.1);
-  --shadow-red:
-    0 0 0 3px rgba(220, 38, 38, 0.15), 0 4px 12px rgba(220, 38, 38, 0.12);
-
-  /* Spacing */
+  --r: 12px;
+  --r-lg: 16px;
+  --r-sm: 8px;
+  --r-xs: 6px;
   --gap: 16px;
+
+  --font: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
-/* ================================================================
-   RESET & BASE
-   ================================================================ */
+/* ────────────────────────────────────────────────────────────
+   RESET
+──────────────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -61,35 +52,34 @@
   margin: 0;
   padding: 0;
 }
-
-html,
+html {
+  font-size: 14px;
+}
 body {
-  height: 100%;
-  background: var(--clr-bg-deep);
-  color: var(--clr-text-primary);
-  font-family: var(--font-mono);
-  overflow-x: hidden;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-1);
+  min-height: 100vh;
   /* Subtle dot grid */
-  background-image: radial-gradient(circle, #c8d6e8 1px, transparent 1px);
-  background-size: 28px 28px;
+  background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-/* ================================================================
+/* ────────────────────────────────────────────────────────────
    LOADING OVERLAY
-   ================================================================ */
+──────────────────────────────────────────────────────────── */
 #loading-overlay {
   position: fixed;
   inset: 0;
-  background: var(--clr-bg-deep);
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
   transition:
-    opacity 0.6s ease,
-    visibility 0.6s ease;
+    opacity 0.5s,
+    visibility 0.5s;
 }
-
 #loading-overlay.hidden {
   opacity: 0;
   visibility: hidden;
@@ -101,39 +91,33 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .loading-icon {
-  width: 56px;
-  height: 56px;
-  border: 3px solid var(--clr-border);
-  border-top-color: var(--clr-cyan);
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue);
   border-radius: 50%;
-  animation: spin 0.9s linear infinite;
+  animation: spin 0.85s linear infinite;
 }
-
 .loading-icon.error-icon {
   border: none;
   animation: none;
-  font-size: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--clr-yellow);
+  font-size: 42px;
 }
 
 .loading-text {
-  font-family: var(--font-display);
-  font-size: 13px;
-  letter-spacing: 3px;
-  color: var(--clr-cyan);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--blue);
   text-transform: uppercase;
 }
-
 .loading-sub {
   font-size: 11px;
-  color: var(--clr-text-secondary);
+  color: var(--text-3);
 }
 
 @keyframes spin {
@@ -142,36 +126,35 @@ body {
   }
 }
 
-/* ================================================================
+/* ────────────────────────────────────────────────────────────
    APP WRAPPER
-   ================================================================ */
+──────────────────────────────────────────────────────────── */
 .app-wrapper {
-  min-height: 100vh;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px var(--gap);
+  gap: 14px;
+  min-height: 100vh;
 }
 
-/* ================================================================
+/* ────────────────────────────────────────────────────────────
    HEADER
-   ================================================================ */
+──────────────────────────────────────────────────────────── */
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  border: 1px solid var(--clr-border);
-  border-radius: 14px;
-  background: var(--clr-bg-panel);
-  margin-bottom: var(--gap);
-  box-shadow: var(--shadow-md);
+  padding: 12px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
-
-/* Top accent line */
 .app-header::before {
   content: "";
   position: absolute;
@@ -179,17 +162,13 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--clr-cyan), #7c3aed, var(--clr-cyan));
-  background-size: 200% 100%;
-  animation: slide-gradient 4s linear infinite;
+  background: linear-gradient(90deg, var(--blue), var(--indigo), var(--blue));
+  background-size: 200%;
+  animation: shimmer 4s linear infinite;
 }
-
-@keyframes slide-gradient {
-  0% {
-    background-position: 0% 0;
-  }
-  100% {
-    background-position: 200% 0;
+@keyframes shimmer {
+  to {
+    background-position: 200%;
   }
 }
 
@@ -198,167 +177,372 @@ body {
   align-items: center;
   gap: 12px;
 }
-
 .logo-icon {
   width: 38px;
   height: 38px;
-  background: var(--clr-cyan-dim);
-  border: 1.5px solid rgba(37, 99, 235, 0.3);
-  border-radius: 10px;
+  background: var(--blue-dim);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--r-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  box-shadow: var(--shadow-blue);
+  font-size: 20px;
 }
-
 .logo-text {
-  font-family: var(--font-display);
   font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--clr-cyan);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-
 .logo-sub {
   font-size: 10px;
-  color: var(--clr-text-secondary);
-  letter-spacing: 1.5px;
-  margin-top: 2px;
-  text-transform: uppercase;
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .header-status-pill {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 14px;
-  border: 1.5px solid rgba(22, 163, 74, 0.35);
-  border-radius: 20px;
-  font-size: 11px;
-  color: var(--clr-green);
+  padding: 5px 12px;
+  border-radius: 99px;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  background: var(--green-dim);
+  font-size: 10px;
+  font-weight: 700;
+  color: #16a34a;
   letter-spacing: 1px;
-  background: var(--clr-green-dim);
-  font-weight: 500;
 }
-
 .pulse-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--clr-green);
-  animation: pulse-anim 1.4s ease-in-out infinite;
+  background: var(--green);
+  animation: pulse-dot 1.5s ease-in-out infinite;
 }
-
-@keyframes pulse-anim {
+@keyframes pulse-dot {
   0%,
   100% {
     opacity: 1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.45;
-    transform: scale(0.75);
+    opacity: 0.4;
+    transform: scale(0.7);
   }
 }
 
-/* ================================================================
-   MAIN GRID LAYOUT
-   ================================================================ */
+.fps-badge {
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--blue-dim);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  font-size: 10px;
+  color: var(--blue);
+  font-weight: 500;
+  font-family: var(--font-mono);
+}
+
+/* ────────────────────────────────────────────────────────────
+   MAIN GRID — 2 COLUMNS (65% / 35%)
+──────────────────────────────────────────────────────────── */
 .main-grid {
-  flex: 1;
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 65fr 35fr;
   gap: var(--gap);
+  flex: 1;
   align-items: start;
 }
 
-@media (max-width: 960px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-  }
+/* ────────────────────────────────────────────────────────────
+   BASE CARD
+──────────────────────────────────────────────────────────── */
+.section-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.section-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card-alt);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.section-card-header .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  flex-shrink: 0;
+}
+.section-card-body {
+  padding: 12px;
 }
 
-/* ================================================================
-   CAMERA SECTION (Left Column)
-   ================================================================ */
+.module-placeholder {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--r-sm);
+  padding: 22px 16px;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 11px;
+  background: var(--bg-card-alt);
+}
+.module-placeholder .ph-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+.module-placeholder .ph-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-2);
+}
+
+/* ────────────────────────────────────────────────────────────
+   CỘT TRÁI
+──────────────────────────────────────────────────────────── */
+.col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
 .camera-section {
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
+  gap: 12px;
+  min-width: 0;
 }
 
+/* ── THANH NGANG POMODORO + WEBCAM ── */
+.pomo-topbar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  min-height: 58px;
+  border-radius: var(--r-lg) !important;
+  overflow: visible;
+}
+
+.pomo-bar-clock-slot {
+  flex: 1;
+  min-width: 0;
+  overflow: visible;
+}
+
+.pomo-bar-body {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 14px !important;
+  flex-wrap: nowrap;
+}
+
+/* Ẩn những thứ thừa trong bar ngang */
+.pomo-bar-body .pomo-mode-row {
+  display: none !important;
+}
+.pomo-bar-body .pomo-hint {
+  display: none !important;
+}
+.pomo-bar-body .pomo-session-label {
+  display: none !important;
+}
+
+/* Clock face: chỉ giữ số + dots, bỏ viền */
+.pomo-bar-body .pomo-clock-face {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.pomo-bar-body .pomo-clock-face::before {
+  display: none !important;
+}
+
+/* MM:SS số lớn */
+.pomo-bar-body .pomo-time-display {
+  font-size: 28px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  min-width: 74px;
+  letter-spacing: 1px;
+  font-family: var(--font-mono) !important;
+}
+
+/* Dots */
+.pomo-bar-body .pomo-rounds {
+  margin-left: 0 !important;
+  display: flex;
+  gap: 3px;
+}
+.pomo-bar-body .pomo-round-dot {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+/* Controls: 3 nút nằm ngang, chiếm giữa */
+.pomo-bar-body .pomo-controls {
+  flex: 1 !important;
+  display: flex !important;
+  gap: 6px !important;
+  min-width: 0;
+}
+.pomo-bar-body .pomo-btn {
+  padding: 6px 10px !important;
+  font-size: 11px !important;
+  white-space: nowrap;
+}
+
+/* Divider dọc */
+.pomo-topbar-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+/* Vùng nút webcam (phải) */
+.pomo-bar-webcam-slot {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+.pomo-bar-webcam-slot .session-ctrl-bar {
+  flex-direction: row !important;
+  gap: 6px !important;
+  padding: 0 !important;
+  width: auto !important;
+}
+.pomo-bar-webcam-slot .session-btn {
+  width: auto !important;
+  padding: 7px 14px !important;
+  font-size: 11px !important;
+  white-space: nowrap;
+}
+
+/* Session buttons — nằm ngang, nhỏ gọn */
+.session-ctrl-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  padding: 14px 16px;
+  width: 100%;
+}
+.session-btn {
+  flex: 1;
+  padding: 11px 0;
+  border-radius: var(--r-sm);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+.session-btn.start-btn {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+.session-btn.start-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+  transform: translateY(-1px);
+}
+.session-btn.pause-btn {
+  background: #ffffff;
+  border-color: #94a3b8;
+  color: #475569;
+}
+.session-btn.pause-btn:hover:not(:disabled) {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.06);
+}
+.session-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ── CAMERA CARD ── */
 .camera-card {
-  background: var(--clr-bg-panel);
-  border: 1px solid var(--clr-border);
-  border-radius: 16px;
-  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
   box-shadow: var(--shadow-md);
+  overflow: hidden;
 }
-
 .camera-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 16px;
-  border-bottom: 1px solid var(--clr-border);
+  padding: 9px 14px;
+  background: var(--bg-card-alt);
+  border-bottom: 1px solid var(--border);
   font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--clr-text-secondary);
+  font-weight: 700;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  background: var(--clr-bg-card);
+  color: var(--text-2);
 }
-
 .camera-card-header .label {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .rec-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--clr-red);
-  animation: pulse-anim 1s ease-in-out infinite;
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+  animation: pulse-dot 1s ease-in-out infinite;
 }
 
-/* ---------------------------------------------------------------
-   CANVAS — Mirror mode + anti-freeze
-   --------------------------------------------------------------- */
 .canvas-wrapper {
   position: relative;
   width: 100%;
-  background: #1a1a2e;
   aspect-ratio: 4/3;
+  background: #0f1117;
   overflow: hidden;
 }
-
-#output-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  /* MIRROR MODE */
-  transform: scaleX(-1);
-  will-change: transform;
-  image-rendering: auto;
-}
-
-#input-video {
-  display: none;
-}
-
-/* Corner brackets */
 .canvas-wrapper::before,
 .canvas-wrapper::after {
   content: "";
   position: absolute;
-  width: 22px;
-  height: 22px;
-  border-color: rgba(255, 255, 255, 0.55);
+  width: 20px;
+  height: 20px;
+  border-color: rgba(255, 255, 255, 0.35);
   border-style: solid;
-  z-index: 10;
+  z-index: 5;
 }
 .canvas-wrapper::before {
   top: 10px;
@@ -371,344 +555,906 @@ body {
   border-width: 0 2px 2px 0;
 }
 
-/* ================================================================
-   STATUS BOX
-   ================================================================ */
+#input-video {
+  display: none;
+}
+#output-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform: scaleX(-1);
+  will-change: transform;
+}
+
+/* ── STATUS + TIMER CARD ── */
 #status-box {
-  margin: 0 14px 14px;
-  padding: 14px 18px;
-  border-radius: 12px;
-  border: 1.5px solid var(--clr-border);
-  background: var(--clr-bg-card);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition:
-    border-color 0.35s ease,
-    background 0.35s ease,
-    box-shadow 0.35s ease;
+  padding: 18px 20px;
+  margin: 12px 12px 0;
+  border-radius: var(--r);
+  border: 1.5px solid var(--border);
+  background: var(--bg-card-alt);
+  transition: all 0.3s;
 }
-
-.status-label-meta {
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--clr-text-muted);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-#status-label {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  transition: color 0.3s ease;
-  color: var(--clr-text-secondary);
-}
-
-.status-icon {
-  font-size: 30px;
-  line-height: 1;
-}
-
-/* ĐÚNG */
-#status-box.status-good {
-  border-color: rgba(22, 163, 74, 0.4);
-  background: var(--clr-green-dim);
-  box-shadow: var(--shadow-green);
-}
-#status-box.status-good #status-label {
-  color: var(--clr-green);
-}
-
-/* CÚI ĐẦU / VẸO LƯNG */
-#status-box.status-bad {
-  border-color: rgba(220, 38, 38, 0.4);
-  background: var(--clr-red-dim);
-  box-shadow: var(--shadow-red);
-  animation: bad-pulse 0.9s ease-in-out infinite alternate;
-}
-#status-box.status-bad #status-label {
-  color: var(--clr-red);
-}
-
-@keyframes bad-pulse {
-  from {
-    box-shadow: var(--shadow-red);
-  }
-  to {
-    box-shadow:
-      0 0 0 4px rgba(220, 38, 38, 0.2),
-      0 6px 20px rgba(220, 38, 38, 0.15);
-  }
-}
-
-/* KHÔNG RÕ */
-#status-box.status-warn {
-  border-color: rgba(217, 119, 6, 0.4);
-  background: var(--clr-yellow-dim);
-}
-#status-box.status-warn #status-label {
-  color: var(--clr-yellow);
-}
-
-/* CHƯA PHÁT HIỆN */
-#status-box.status-unknown {
-  border-color: var(--clr-border);
-  background: var(--clr-bg-card);
-}
-
-/* ================================================================
-   RIGHT SIDEBAR
-   ================================================================ */
-.sidebar {
+.status-text-group {
   display: flex;
   flex-direction: column;
-  gap: var(--gap);
+  gap: 7px;
+}
+.status-label-meta {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-3);
+  line-height: 1.4;
+}
+#status-label {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-2);
+  transition: color 0.3s;
+  line-height: 1.4;
+  font-family: var(--font-mono);
+  margin-top: 4px;
+}
+.status-icon {
+  font-size: 32px;
 }
 
-/* ================================================================
-   METRIC CARDS
-   ================================================================ */
+#status-box.status-good {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: var(--green-dim);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.08);
+}
+#status-box.status-good #status-label {
+  color: #16a34a;
+}
+#status-box.status-bad {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: var(--red-dim);
+  animation: bad-blink 0.9s ease-in-out infinite alternate;
+}
+#status-box.status-bad #status-label {
+  color: var(--red);
+}
+@keyframes bad-blink {
+  from {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+  }
+  to {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.18);
+  }
+}
+#status-box.status-warn {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: var(--amber-dim);
+}
+#status-box.status-warn #status-label {
+  color: #d97706;
+}
+#status-box.status-unknown {
+  border-color: var(--border);
+  background: var(--bg-card-alt);
+}
+
+/* ── METRICS GRID — 3 thẻ ngang hàng, layout nội dung trái-phải ── */
 .metrics-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
+/* Bỏ override grid-column: 1/-1 — eye-distance card cùng hàng */
+.metrics-grid .metric-card[style*="grid-column"] {
+  grid-column: auto !important;
+}
+
 .metric-card {
-  background: var(--clr-bg-panel);
-  border: 1px solid var(--clr-border);
-  border-radius: 12px;
-  padding: 16px;
-  position: relative;
-  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
   box-shadow: var(--shadow-sm);
+  padding: 14px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
   transition:
-    box-shadow 0.25s,
-    transform 0.25s;
+    transform 0.2s,
+    box-shadow 0.2s;
+  overflow: hidden;
 }
 
-.metric-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-}
-
-/* Bottom accent bar */
-.metric-card::after {
+/* Accent bar màu trên đầu mỗi card */
+.metric-card::before {
   content: "";
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--clr-cyan), #7c3aed);
+  background: linear-gradient(90deg, var(--blue), var(--indigo));
   opacity: 0.6;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.35s ease;
 }
-.metric-card:hover::after {
-  transform: scaleX(1);
+
+.metric-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.metric-icon {
+  font-size: 20px;
+  line-height: 1;
+  margin-bottom: 2px;
+  opacity: 0.85;
 }
 
 .metric-label {
   font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--clr-text-muted);
+  font-weight: 700;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.3;
 }
 
 .metric-value {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--clr-cyan);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--indigo);
+  font-family: var(--font-mono);
   line-height: 1;
-  transition: color 0.3s;
-}
-
-.metric-value.warn {
-  color: var(--clr-yellow);
-}
-.metric-value.bad {
-  color: var(--clr-red);
-}
-
-.metric-icon {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 18px;
-  opacity: 0.25;
+  margin: 2px 0;
 }
 
 .metric-threshold {
   font-size: 9px;
-  color: var(--clr-text-muted);
-  margin-top: 6px;
-  letter-spacing: 0.5px;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.3;
 }
 
-/* ================================================================
-   SECTION CARD
-   ================================================================ */
-.section-card {
-  background: var(--clr-bg-panel);
-  border: 1px solid var(--clr-border);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-}
-
-.section-card-header {
-  padding: 11px 16px;
-  border-bottom: 1px solid var(--clr-border);
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: var(--clr-text-secondary);
-  text-transform: uppercase;
-  background: var(--clr-bg-card);
+/* ────────────────────────────────────────────────────────────
+   CỘT PHẢI — DASHBOARD (sticky, scroll riêng)
+──────────────────────────────────────────────────────────── */
+.col-right {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  min-width: 0;
+  position: sticky;
+  top: 14px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.2) transparent;
+}
+.col-right::-webkit-scrollbar {
+  width: 4px;
+}
+.col-right::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.2);
+  border-radius: 2px;
+}
+
+.dashboard-card {
+  height: 100%;
+}
+.dashboard-card .section-card-body {
+  padding: 12px;
+}
+
+/* ── Dashboard nội dung inject bởi dashboard.js ── */
+.dash-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+/* Stat card — nổi bật, có accent bar màu trên đầu */
+.dash-stat-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 12px 10px;
+  min-width: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.dash-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+/* Accent bar trên đầu card — màu inject từ JS qua border-top */
+.dash-stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: inherit; /* override bằng border-top từ JS */
+}
+
+.dash-stat-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dash-stat-value {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+  word-break: break-word;
+  font-family: "JetBrains Mono", monospace;
+}
+/* % nhỏ dưới value */
+.dash-stat-card > div[id$="-pct"] {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 3px;
   font-weight: 500;
 }
 
-.section-card-header .dot {
+/* Export button — gradient xanh, chữ trắng, action cao */
+.dash-export-btn {
+  width: 100% !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none !important; /* Bỏ viền cũ thô kệch */
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #6366f1
+  ) !important; /* Gradient đổ màu đậm chất công nghệ */
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff !important;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
+}
+.dash-export-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+.dash-export-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ────────────────────────────────────────────────────────────
+   TIMER MODULE
+──────────────────────────────────────────────────────────── */
+.timer-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1.5px solid transparent;
+  transition: all 0.3s;
+}
+.timer-badge.good {
+  background: var(--green-dim);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #16a34a;
+}
+.timer-badge.bad {
+  background: var(--red-dim);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--red);
+}
+.timer-badge-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--clr-cyan);
-  opacity: 0.6;
+  background: currentColor;
+  animation: pulse-dot 1.2s ease-in-out infinite;
 }
-
-.section-card-body {
-  padding: 18px 16px;
-}
-
-/* Placeholder */
-.module-placeholder {
-  border: 1.5px dashed var(--clr-border);
-  border-radius: 10px;
-  padding: 24px 16px;
-  text-align: center;
-  color: var(--clr-text-muted);
-  font-size: 11px;
-  letter-spacing: 1px;
-  background: var(--clr-bg-card);
-}
-.module-placeholder .ph-icon {
-  font-size: 22px;
-  margin-bottom: 8px;
-  display: block;
-}
-.module-placeholder .ph-name {
-  font-family: var(--font-display);
+#timer-realtime {
   font-size: 10px;
-  color: var(--clr-text-secondary);
-  letter-spacing: 2px;
+  color: var(--text-3);
+  font-family: var(--font-mono);
 }
 
-/* ================================================================
-   LANDMARKS DEBUG TABLE
-   ================================================================ */
-.landmarks-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11px;
+.timer-counter-box {
+  text-align: center;
+  padding: 12px 8px;
+  background: var(--bg-card-alt);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 10px;
+  transition: all 0.3s;
 }
-
-.landmarks-table th {
-  text-align: left;
-  padding: 7px 10px;
-  color: var(--clr-text-muted);
+.timer-counter-box.counting {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: var(--red-dim);
+}
+.timer-counter-label {
   font-size: 9px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--clr-border);
-  background: var(--clr-bg-card);
+  color: var(--text-3);
+  margin-bottom: 4px;
 }
-
-.landmarks-table td {
-  padding: 6px 10px;
-  color: var(--clr-text-secondary);
-  border-bottom: 1px solid var(--clr-bg-card);
+.timer-counter-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-2);
+  line-height: 1;
+  transition: color 0.3s;
+  font-family: var(--font-mono);
+}
+.timer-counter-box.counting .timer-counter-value {
+  color: var(--red);
+}
+.timer-counter-unit {
   font-size: 10px;
+  color: var(--text-3);
+  margin-top: 3px;
 }
 
-.landmarks-table tr:last-child td {
-  border-bottom: none;
+.timer-progress-wrap {
+  margin-bottom: 4px;
 }
-.landmarks-table td:first-child {
-  color: var(--clr-cyan);
-  font-weight: 500;
-}
-.landmarks-table tr:hover td {
-  background: var(--clr-bg-card);
-}
-
-/* ================================================================
-   FOOTER
-   ================================================================ */
-.app-footer {
-  margin-top: var(--gap);
-  padding: 12px 4px;
-  border-top: 1px solid var(--clr-border);
+.timer-progress-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
-  color: var(--clr-text-muted);
-  letter-spacing: 0.5px;
+  font-size: 9px;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+.timer-progress-bar-bg {
+  height: 5px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.timer-progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--amber), var(--red));
+  transition: width 0.8s ease;
 }
 
-/* ================================================================
-   SESSION CONTROLS (Bắt đầu / Tạm dừng)
-   ================================================================ */
-.session-ctrl-bar {
+/* ────────────────────────────────────────────────────────────
+   POMODORO MODULE
+──────────────────────────────────────────────────────────── */
+.pomo-mode-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: var(--gap);
+  align-items: center;
+  gap: 6px;
+}
+.pomo-mode-pill {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1.5px solid transparent;
+  transition: all 0.3s;
+  opacity: 0.35;
+  white-space: nowrap;
+}
+.pomo-mode-pill.active-focus {
+  background: var(--blue-dim);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--blue);
+  opacity: 1;
+}
+.pomo-mode-pill.active-break {
+  background: var(--green-dim);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #16a34a;
+  opacity: 1;
 }
 
-.session-btn {
-  flex: 1;
-  padding: 11px 0;
-  border-radius: 12px;
-  border: 1.5px solid var(--clr-border);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 600;
+.pomo-clock-face {
+  background: var(--bg-card-alt);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 8px 14px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s;
+  display: block;
+  text-align: center;
+}
+.pomo-clock-face::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  transition: background 0.4s;
+}
+.pomo-clock-face.focus::before {
+  background: var(--blue);
+}
+.pomo-clock-face.break::before {
+  background: var(--green);
+}
+.pomo-clock-face.break {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: var(--green-dim);
+}
+.pomo-clock-face.focus {
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.pomo-session-label {
+  font-size: 8px;
+  font-weight: 700;
   letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  text-transform: uppercase;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.pomo-time-display {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  transition: color 0.4s;
+  color: var(--blue);
+  font-family: var(--font-mono);
+}
+.pomo-clock-face.break .pomo-time-display {
+  color: #16a34a;
 }
 
-.session-btn.start-btn {
-  background: var(--clr-cyan);
-  border-color: var(--clr-cyan);
-  color: #fff;
-  box-shadow: var(--shadow-blue);
+.pomo-rounds {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
 }
-.session-btn.start-btn:hover:not(:disabled) {
+.pomo-round-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.3s;
+}
+.pomo-round-dot.done {
+  background: var(--blue);
+}
+
+.pomo-controls {
+  display: flex;
+  gap: 6px;
+}
+.pomo-btn {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: var(--r-sm);
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.pomo-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-dim);
+}
+.pomo-btn.primary {
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  border-color: transparent;
+  color: #fff;
+}
+.pomo-btn.primary:hover {
+  opacity: 0.88;
+  color: #fff;
+}
+.pomo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pomo-hint {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 6px;
+  min-height: 15px;
+}
+
+/* ────────────────────────────────────────────────────────────
+   TIMER POPUP
+──────────────────────────────────────────────────────────── */
+.timer-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 40, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.25s,
+    visibility 0.25s;
+}
+.timer-popup-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+.timer-popup-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 36px 40px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  transform: scale(0.9);
+  transition: transform 0.25s;
+}
+.timer-popup-overlay.visible .timer-popup-card {
+  transform: scale(1);
+}
+.timer-popup-emoji {
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: block;
+  animation: wobble 0.6s ease-in-out 3;
+}
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+}
+.timer-popup-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+.timer-popup-msg {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+.timer-popup-btn {
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: var(--r-sm);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+.timer-popup-btn:hover {
   opacity: 0.88;
   transform: translateY(-1px);
 }
 
-.session-btn.pause-btn {
-  background: var(--clr-bg-panel);
-  border-color: var(--clr-border);
-  color: var(--clr-text-secondary);
-}
-.session-btn.pause-btn:hover:not(:disabled) {
-  border-color: var(--clr-red);
-  color: var(--clr-red);
-  background: var(--clr-red-dim);
+/* ────────────────────────────────────────────────────────────
+   FOOTER
+──────────────────────────────────────────────────────────── */
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 4px;
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--text-3);
+  flex-shrink: 0;
 }
 
-.session-btn:disabled {
-  opacity: 0.4;
+/* ── Nút "Nghỉ nhanh 5p" — tím nhạt, tách khỏi tiêu đề ── */
+.test-break-btn {
+  margin-left: auto;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd6fe;
+  background: #f5f3ff;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  color: #7c3aed;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  line-height: 1;
+}
+.test-break-btn:hover:not(:disabled) {
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #6d28d9;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
+}
+.test-break-btn:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
-  transform: none !important;
+}
+
+/* ── Nút xem video trong AI assistant (BREAK_TIPS.videoBtn) ── */
+.ai-video-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
+  color: #fff !important;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none !important;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+}
+.ai-video-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(99, 102, 241, 0.4);
+}
+
+/* ── Tăng gap giữa 2 cột và sidebar ── */
+.main-grid {
+  gap: 20px;
+}
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Camera card: bỏ margin thừa ở status-box ── */
+#status-box {
+  margin: 10px 12px;
+}
+
+/* ── Section card body padding thoáng hơn ── */
+.section-card-body {
+  padding: 14px;
+}
+
+/* ================================================================
+   DARK MODE — [data-theme="dark"]
+   Ghi đè CSS variables, giữ nguyên toàn bộ class/layout cũ.
+================================================================ */
+[data-theme="dark"] {
+  --bg: #29417c;
+  --bg-card: #151d30;
+  --bg-card-alt: #1e2942;
+  --border: #263554;
+  --border-strong: #3b527d;
+  --text-1: #f8fafc;
+  --text-2: #cbd5e1;
+  --text-3: #64748b;
+  --blue-dim: rgba(59, 130, 246, 0.15);
+  --green-dim: rgba(34, 197, 94, 0.12);
+  --red-dim: rgba(239, 68, 68, 0.12);
+  --amber-dim: rgba(245, 158, 11, 0.1);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Nền trang dark — bỏ dot grid sáng, thay gradient tối */
+[data-theme="dark"] body {
+  background: #0b0f19;
+  background-image:
+    radial-gradient(
+      ellipse at 20% 10%,
+      rgba(59, 130, 246, 0.07) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 80% 90%,
+      rgba(99, 102, 241, 0.06) 0%,
+      transparent 50%
+    );
+  background-attachment: fixed;
+}
+
+/* Header dark */
+[data-theme="dark"] .app-header {
+  background: rgba(21, 29, 48, 0.95);
+  border-color: #263554;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+}
+
+/* Cards dark */
+[data-theme="dark"] .section-card,
+[data-theme="dark"] .camera-card,
+[data-theme="dark"] .metric-card,
+[data-theme="dark"] .dash-stat-card {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .section-card-header,
+[data-theme="dark"] .camera-card-header {
+  background: rgba(30, 41, 66, 0.8);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+/* Status box dark */
+[data-theme="dark"] #status-box {
+  background: var(--bg-card-alt);
+  border-color: var(--border);
+}
+[data-theme="dark"] #status-box.status-good {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+[data-theme="dark"] #status-box.status-bad {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+[data-theme="dark"] #status-box.status-warn {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+/* Sidebar dark */
+[data-theme="dark"] .col-right {
+  scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+}
+
+/* Pomodoro clock dark */
+[data-theme="dark"] .pomo-clock-face {
+  background: rgba(37, 99, 235, 0.07);
+  border-color: rgba(37, 99, 235, 0.2);
+}
+[data-theme="dark"] .pomo-clock-face.break {
+  background: rgba(34, 197, 94, 0.07);
+  border-color: rgba(34, 197, 94, 0.2);
+}
+[data-theme="dark"] .pomo-btn {
+  background: var(--bg-card-alt);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+[data-theme="dark"] .pomo-btn.primary {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  border-color: transparent;
+  color: #fff;
+}
+[data-theme="dark"] .pomo-controls .pomo-btn:nth-child(2) {
+  background: rgba(234, 88, 12, 0.1);
+  border-color: rgba(234, 88, 12, 0.25);
+  color: #fb923c;
+}
+[data-theme="dark"] .pomo-controls .pomo-btn:nth-child(3) {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+/* Session buttons dark */
+[data-theme="dark"] .session-btn.pause-btn {
+  background: var(--bg-card-alt);
+  border-color: var(--border-strong);
+  color: var(--text-2);
+}
+
+/* Timer module dark */
+[data-theme="dark"] .timer-counter-box {
+  background: var(--bg-card-alt);
+  border-color: var(--border);
+}
+[data-theme="dark"] .timer-counter-box.counting {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+[data-theme="dark"] .ai-assistant-box {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+[data-theme="dark"] .ai-assistant-header {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: var(--border);
+}
+
+/* Dashboard dark */
+[data-theme="dark"] .dash-chart-wrap {
+  background: var(--bg-card-alt);
+  border-color: var(--border);
+}
+[data-theme="dark"] .dash-stat-card {
+  background: var(--bg-card);
+  border-color: var(--border);
+  box-shadow: var(--shadow-sm);
+}
+[data-theme="dark"] .dash-export-btn {
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.4);
+}
+
+/* Footer dark */
+[data-theme="dark"] .app-footer {
+  border-color: var(--border);
+}
+
+/* ── Nút bóng đèn ── */
+.theme-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition:
+    transform 0.2s ease,
+    background 0.2s;
+  line-height: 1;
+}
+.theme-btn:hover {
+  transform: scale(1.15);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* Dark mode: icon phát sáng vàng */
+[data-theme="dark"] .theme-btn {
+  text-shadow:
+    0 0 8px #f59e0b,
+    0 0 16px rgba(245, 158, 11, 0.4);
+}
+[data-theme="dark"] .theme-btn:hover {
+  background: rgba(245, 158, 11, 0.1);
 }

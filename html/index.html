@@ -3,41 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PoseAlert AI — Nhận diện tư thế ngồi học</title>
+    <title>PoseAlert AI — Cảnh báo tư thế ngồi học</title>
 
-    <!--
-    ================================================================
-    LƯU Ý ĐƯỜNG DẪN:
-      File HTML này nằm ở html/index.html
-      → CSS và JS phải dùng tiền tố "../" để lùi 1 cấp ra ngoài
-    ================================================================
-    -->
-
-    <!-- ===================== CSS ===================== -->
-    <!-- Font từ Google Fonts (Orbitron + JetBrains Mono) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <!-- Stylesheet chính của dự án -->
     <link rel="stylesheet" href="../css/style.css" />
 
-    <!-- ===================== MEDIAPIPE CDN =====================
-         Thứ tự LOAD SCRIPT RẤT QUAN TRỌNG:
-           1. camera_utils  — Camera utility, quản lý vòng lặp frame
-           2. drawing_utils — drawConnectors, drawLandmarks
-           3. pose          — Model Pose, class Pose, POSE_CONNECTIONS
-         Thuộc tính crossorigin="anonymous" là bắt buộc với CDN jsdelivr.
-    ================================================================ -->
     <script
       src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
       crossorigin="anonymous"
     ></script>
-
     <script
       src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
       crossorigin="anonymous"
     ></script>
-
     <script
       src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"
       crossorigin="anonymous"
@@ -45,11 +24,6 @@
   </head>
 
   <body>
-    <!-- ============================================================
-         LOADING OVERLAY
-         Hiển thị spinner trong lúc MediaPipe WASM model đang tải.
-         Sẽ bị ẩn bởi class "hidden" sau khi camera start thành công.
-    ============================================================ -->
     <div id="loading-overlay">
       <div class="loading-inner">
         <div class="loading-icon"></div>
@@ -58,34 +32,39 @@
       </div>
     </div>
 
-    <!-- ============================================================
-         APP WRAPPER
-    ============================================================ -->
     <div class="app-wrapper">
-      <!-- ---- HEADER ---- -->
+      <!-- HEADER -->
       <header class="app-header">
         <div class="logo-group">
           <div class="logo-icon">🤖</div>
           <div>
             <div class="logo-text">POSEALERT AI</div>
             <div class="logo-sub">
-              Hệ thống nhận diện tư thế ngồi học realtime
+              Hệ thống cảnh báo tư thế ngồi học realtime
             </div>
           </div>
         </div>
-        <div class="header-status-pill">
-          <span class="pulse-dot"></span>
-          <span>LIVE</span>
+        <div class="header-right">
+          <button
+            id="theme-toggle"
+            class="theme-btn"
+            title="Chuyển chế độ tối/sáng"
+          >
+            💡
+          </button>
+          <div class="header-status-pill">
+            <span class="pulse-dot"></span>
+            <span>LIVE</span>
+          </div>
+          <span id="fps-counter" class="fps-badge">-- fps</span>
         </div>
       </header>
 
-      <!-- ---- MAIN GRID ---- -->
+      <!-- MAIN GRID -->
       <main class="main-grid">
-        <!-- ================================================
-                 CỘT TRÁI: Camera + Status Box
-            ================================================ -->
+        <!-- CỘT TRÁI: Điều khiển + Camera + Status -->
         <section class="camera-section">
-          <!-- Slot nút Bắt đầu / Tạm dừng — được main.js nhúng vào tự động -->
+          <!-- Nút Bắt đầu / Tạm dừng — main.js inject vào đây -->
           <div id="session-controls"></div>
 
           <div class="camera-card">
@@ -94,34 +73,13 @@
                 <span class="rec-dot"></span>
                 WEBCAM INPUT — REALTIME POSE DETECTION
               </span>
-              <span id="fps-counter">-- fps</span>
             </div>
 
             <div class="canvas-wrapper">
-              <!--
-                            VIDEO: phần tử nguồn cho MediaPipe.
-                            Phải có display:none — không cho người dùng thấy video gốc.
-                            Canvas sẽ vẽ lại hình ảnh (có mirror + skeleton) thay thế.
-                        -->
               <video id="input-video" playsinline></video>
-
-              <!--
-                            CANVAS: nơi MediaPipe vẽ lại hình ảnh + khung xương.
-                            Kích thước (width/height) được set ĐỘNG trong main.js
-                            để luôn khớp với độ phân giải camera thực tế.
-                            CSS transform: scaleX(-1) → Hiệu ứng gương (mirror).
-                        -->
               <canvas id="output-canvas"></canvas>
             </div>
 
-            <!--
-                        STATUS BOX (ID: status-box)
-                        Class CSS sẽ thay đổi động bởi pose_logic.js:
-                          .status-good    → TƯ THẾ ĐÚNG
-                          .status-bad     → CÚI ĐẦU hoặc VẸO LƯNG
-                          .status-warn    → KHÔNG RÕ (landmark bị khuất)
-                          .status-unknown → CHƯA PHÁT HIỆN
-                    -->
             <div id="status-box" class="status-unknown">
               <div>
                 <div class="status-label-meta">Trạng thái tư thế</div>
@@ -130,54 +88,35 @@
               <div class="status-icon" id="status-icon">⏳</div>
             </div>
           </div>
-          <!-- /.camera-card -->
-        </section>
-        <!-- /.camera-section -->
 
-        <!-- ================================================
-                 CỘT PHẢI: Metrics + Placeholders cho teammates
-            ================================================ -->
-        <aside class="sidebar">
-          <!-- --- METRIC CARDS (Góc cổ + Lệch vai + Cong lưng) --- -->
+          <!-- Trợ lý AI — timer.js inject hộp thoại vào đây -->
+          <div id="camera-assistant-container"></div>
+
+          <!-- 3 chỉ số AI -->
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Góc cổ</div>
               <div class="metric-value" id="neck-angle-value">--</div>
-              <div class="metric-threshold">Ngưỡng: &lt; 65° → Cúi đầu</div>
+              <div class="metric-threshold">&lt; 65° → Cúi đầu</div>
               <span class="metric-icon">🔻</span>
             </div>
-
             <div class="metric-card">
               <div class="metric-label">Lệch vai</div>
               <div class="metric-value" id="shoulder-diff-value">--</div>
-              <div class="metric-threshold">Ngưỡng: &gt; 30px → Vẹo lưng</div>
+              <div class="metric-threshold">&gt; 30px → Vẹo lưng</div>
               <span class="metric-icon">↕</span>
             </div>
-
-            <div class="metric-card" style="grid-column: 1 / -1">
+            <div class="metric-card">
               <div class="metric-label">Khoảng cách mắt (% khung hình)</div>
-              <!--
-                            ID: eye-distance-value
-                            Công thức: sqrt((lx-rx)² + (ly-ry)²) / canvasWidth × 100
-                            Càng lớn = mặt càng gần camera = ngồi quá gần màn hình
-                            Bình thường: ≤ 20%  |  Quá gần: > 20%
-                        -->
               <div class="metric-value" id="eye-distance-value">--</div>
-              <div class="metric-threshold">
-                Ngưỡng: &gt; 20% → Mắt gần màn hình
-              </div>
+              <div class="metric-threshold">&gt; 20% → Mắt gần màn hình</div>
               <span class="metric-icon">👁</span>
             </div>
           </div>
-          <!-- /.metrics-grid -->
+        </section>
 
-          <!-- ============================================
-                     PLACEHOLDER — TIMER CẢNH BÁO 30S
-                     Phụ trách: Thành viên nhóm (Timer module)
-                     Biến toàn cục cần dùng:
-                       - currentPoseStatus  (string)
-                     Gợi ý: Gắn ID="timer-section" để viết JS vào
-                ============================================ -->
+        <!-- CỘT PHẢI: Timer + Dashboard + Pomodoro -->
+        <aside class="sidebar">
           <div class="section-card" id="timer-section">
             <div class="section-card-header">
               <span class="dot"></span>
@@ -191,14 +130,6 @@
             </div>
           </div>
 
-          <!-- ============================================
-                     PLACEHOLDER — DASHBOARD (CHART.JS)
-                     Phụ trách: Thành viên nhóm (Dashboard module)
-                     Biến toàn cục cần dùng:
-                       - currentPoseStatus   (string)
-                       - currentNeckAngle    (number, độ)
-                       - currentShoulderDiff (number, px)
-                ============================================ -->
           <div class="section-card" id="dashboard-section">
             <div class="section-card-header">
               <span class="dot"></span>
@@ -212,15 +143,18 @@
             </div>
           </div>
 
-          <!-- ============================================
-                     PLACEHOLDER — POMODORO TIMER
-                     Phụ trách: Thành viên nhóm (Pomodoro module)
-                     Gợi ý: Module này độc lập, không cần biến AI
-                ============================================ -->
           <div class="section-card" id="pomodoro-section">
             <div class="section-card-header">
               <span class="dot"></span>
               Pomodoro Timer
+              <!-- Nút test nhanh — bấm để vào nghỉ 5 phút ngay, không cần chờ 25 phút -->
+              <button
+                id="test-break-btn"
+                class="test-break-btn"
+                title="Chế độ nghỉ 5 phút"
+              >
+                ☕ Nghỉ nhanh 5p
+              </button>
             </div>
             <div class="section-card-body">
               <div class="module-placeholder">
@@ -230,73 +164,34 @@
             </div>
           </div>
         </aside>
-        <!-- /.sidebar -->
       </main>
-      <!-- /.main-grid -->
 
-      <!-- ---- FOOTER ---- -->
       <footer class="app-footer">
         <span>PoseAlert AI &copy; 2025</span>
         <span></span>
       </footer>
     </div>
-    <!-- /.app-wrapper -->
 
-    <!-- ================================================================
-         SCRIPTS — THỨ TỰ LOAD BẮT BUỘC:
-           1. pose_logic.js  → Khai báo biến toàn cục + hàm analyzePose()
-           2. main.js        → Sử dụng analyzePose() từ pose_logic.js
-         MediaPipe CDN đã được load ở <head> nên luôn có trước 2 file này.
-    ================================================================ -->
-
-    <!-- Module 1: Logic tư thế (khai báo biến toàn cục trước) -->
     <script src="../js/pose_logic.js"></script>
-
-    <!-- Module 2: Khởi động camera và vòng lặp MediaPipe -->
     <script src="../js/main.js"></script>
-
-    <!-- Module 3: Timer cảnh báo tư thế 30 giây -->
     <script src="../js/timer.js"></script>
-
-    <!-- Module 4: Pomodoro Timer -->
     <script src="../js/pomodoro.js"></script>
-
-    <!-- Module 5: Dashboard thống kê Chart.js -->
     <script src="../js/dashboard.js"></script>
 
-    <!--
-        ============================================================
-        HƯỚNG DẪN TÍCH HỢP CHO TEAMMATES:
-        ============================================================
-        <script src="../js/timer.js"></script>       ← Timer 30s
-        <script src="../js/dashboard.js"></script>   ← Chart.js
-        <script src="../js/pomodoro.js"></script>    ← Pomodoro
-
-        Biến toàn cục đã sẵn sàng để đọc:
-          window.currentPoseStatus       → "ĐÚNG"|"CÚI ĐẦU"|"MẮT GẦN MÀN HÌNH"|"VẸO LƯNG"
-          window.currentNeckAngle         → số thực (độ),  ví dụ: 72.4
-          window.currentShoulderDiff      → số thực (pixel), ví dụ: 15.3
-          window.currentEyeDistanceRatio  → số thực 0–1, ví dụ: 0.14 (bình thường ≤ 0.20)
-        ============================================================
-    -->
-
-    <!-- Script bổ sung: FPS counter + icon trạng thái -->
     <script>
       (function () {
         "use strict";
-
-        // --- FPS Counter ---
-        let frameCount = 0;
-        let lastTime = performance.now();
+        let frameCount = 0,
+          lastTime = performance.now();
         const fpsEl = document.getElementById("fps-counter");
-
         function updateFPS() {
           frameCount++;
-          const now = performance.now();
-          const elapsed = now - lastTime;
+          const now = performance.now(),
+            elapsed = now - lastTime;
           if (elapsed >= 1000) {
-            const fps = Math.round((frameCount * 1000) / elapsed);
-            if (fpsEl) fpsEl.textContent = fps + " fps";
+            if (fpsEl)
+              fpsEl.textContent =
+                Math.round((frameCount * 1000) / elapsed) + " fps";
             frameCount = 0;
             lastTime = now;
           }
@@ -304,13 +199,12 @@
         }
         requestAnimationFrame(updateFPS);
 
-        // --- Cập nhật icon trạng thái ---
-        const _originalUpdateStatusUI = window.updateStatusUI;
+        const _orig = window.updateStatusUI;
         window.updateStatusUI = function () {
-          _originalUpdateStatusUI();
+          _orig();
           const iconEl = document.getElementById("status-icon");
           if (!iconEl) return;
-          const iconMap = {
+          const map = {
             ĐÚNG: "✅",
             "CÚI ĐẦU": "⚠️",
             "MẮT GẦN MÀN HÌNH": "👁️",
@@ -318,8 +212,33 @@
             "KHÔNG RÕ": "🔍",
             "CHƯA PHÁT HIỆN": "⏳",
           };
-          iconEl.textContent = iconMap[currentPoseStatus] || "⏳";
+          iconEl.textContent = map[currentPoseStatus] || "⏳";
         };
+
+        // ── Dark Mode Toggle ──
+        const saved = localStorage.getItem("pose-theme");
+        if (saved === "dark")
+          document.documentElement.setAttribute("data-theme", "dark");
+
+        const toggleBtn = document.getElementById("theme-toggle");
+        if (toggleBtn) {
+          // Đồng bộ icon với trạng thái đã lưu
+          toggleBtn.textContent = saved === "dark" ? "🌙" : "💡";
+
+          toggleBtn.addEventListener("click", () => {
+            const isDark =
+              document.documentElement.getAttribute("data-theme") === "dark";
+            if (isDark) {
+              document.documentElement.removeAttribute("data-theme");
+              localStorage.setItem("pose-theme", "light");
+              toggleBtn.textContent = "💡";
+            } else {
+              document.documentElement.setAttribute("data-theme", "dark");
+              localStorage.setItem("pose-theme", "dark");
+              toggleBtn.textContent = "🌙";
+            }
+          });
+        }
       })();
     </script>
   </body>
