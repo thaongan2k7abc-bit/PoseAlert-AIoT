@@ -29,7 +29,7 @@ var currentEyeDistanceRatio = 0;
 // ================================================================
 // NGƯỠNG PHÂN LOẠI
 // ================================================================
-const NECK_ANGLE_THRESHOLD = 61; // độ  — góc cổ < 62°
+const NECK_ANGLE_THRESHOLD = 65; // độ  — góc cổ < 65°
 const EYE_DISTANCE_THRESHOLD = 0.2; //      — face ratio > 0.20    → MẮT GẦN MÀN HÌNH
 const SHOULDER_DIFF_THRESHOLD = 30; // px   — lệch vai > 30px      → VẸO LƯNG
 

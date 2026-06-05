@@ -1,145 +1,377 @@
 /* ============================================================
    FILE: css/timer.css
-   MÔ TẢ: Giao diện Module Timer Cảnh Báo Tư Thế
+   Module Timer Cảnh Báo + Trợ lý AI PoseAlert
    ============================================================ */
 
-/* --- Vùng hiển thị trạng thái + bộ đếm --- */
+/* ── Badge + đồng hồ thực ── */
 .timer-status-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
-/* Nhãn trạng thái động (ĐÚNG / SAI) */
 .timer-badge {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 12px;
-  border-radius: 20px;
+  padding: 4px 12px;
+  border-radius: 99px;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
   border: 1.5px solid transparent;
-  transition: all 0.3s ease;
-  font-family: var(--font-mono);
+  transition: all 0.3s;
+  font-family: var(--font);
 }
-
 .timer-badge.good {
-  background: var(--clr-green-dim);
-  border-color: rgba(22, 163, 74, 0.35);
-  color: var(--clr-green);
+  background: var(--green-dim);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #16a34a;
 }
-
 .timer-badge.bad {
-  background: var(--clr-red-dim);
-  border-color: rgba(220, 38, 38, 0.35);
-  color: var(--clr-red);
-  animation: badge-pulse 1s ease-in-out infinite alternate;
+  background: var(--red-dim);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--red);
+  animation: badge-blink 1s ease-in-out infinite alternate;
+}
+.timer-badge.break {
+  background: var(--blue-dim);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--blue);
 }
 
-@keyframes badge-pulse {
+@keyframes badge-blink {
   from {
     box-shadow: none;
   }
   to {
-    box-shadow: 0 0 10px rgba(220, 38, 38, 0.25);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.25);
   }
 }
 
 .timer-badge-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: currentColor;
-  animation: pulse-anim 1.2s ease-in-out infinite;
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+@keyframes dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.7);
+  }
 }
 
-/* --- Vùng đếm giây sai tư thế --- */
+#timer-realtime {
+  font-size: 10px;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Hộp đếm giây sai ── */
 .timer-counter-box {
   text-align: center;
-  padding: 14px 10px;
-  background: var(--clr-bg-card);
-  border-radius: 12px;
-  border: 1.5px solid var(--clr-border);
-  transition:
-    border-color 0.3s,
-    background 0.3s;
-  margin-bottom: 14px;
+  padding: 12px 8px;
+  background: var(--bg-card-alt);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 10px;
+  transition: all 0.3s;
 }
-
 .timer-counter-box.counting {
-  border-color: rgba(220, 38, 38, 0.4);
-  background: var(--clr-red-dim);
+  border-color: rgba(239, 68, 68, 0.4);
+  background: var(--red-dim);
 }
 
 .timer-counter-label {
   font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--clr-text-muted);
+  letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  color: var(--text-3);
+  margin-bottom: 4px;
+  font-weight: 600;
 }
-
 .timer-counter-value {
-  font-family: var(--font-display);
-  font-size: 36px;
-  font-weight: 700;
-  color: var(--clr-text-secondary);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-2);
   line-height: 1;
   transition: color 0.3s;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
-
 .timer-counter-box.counting .timer-counter-value {
-  color: var(--clr-red);
+  color: var(--red);
 }
-
 .timer-counter-unit {
-  font-size: 11px;
-  color: var(--clr-text-muted);
-  margin-top: 4px;
-  letter-spacing: 1px;
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 3px;
 }
 
-/* --- Thanh tiến trình 30 giây --- */
+/* ── Thanh tiến trình ── */
 .timer-progress-wrap {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
-
 .timer-progress-meta {
   display: flex;
   justify-content: space-between;
   font-size: 9px;
-  color: var(--clr-text-muted);
-  letter-spacing: 1px;
+  color: var(--text-3);
   margin-bottom: 5px;
 }
-
 .timer-progress-bar-bg {
-  height: 6px;
-  background: var(--clr-bg-card-2);
+  height: 5px;
+  background: var(--border);
   border-radius: 99px;
   overflow: hidden;
-  border: 1px solid var(--clr-border);
 }
-
 .timer-progress-bar-fill {
   height: 100%;
   width: 0%;
   border-radius: 99px;
-  background: linear-gradient(90deg, var(--clr-yellow), var(--clr-red));
+  background: linear-gradient(90deg, var(--amber), var(--red));
   transition: width 0.8s ease;
 }
 
-/* --- Popup cảnh báo overlay --- */
+/* ════════════════════════════════════════════════════════
+   HỘP THOẠI TRỢ LÝ AI
+   Container: #camera-assistant-container (dưới camera)
+════════════════════════════════════════════════════════ */
+
+/* Container bên ngoài — khoảng cách với camera card */
+#camera-assistant-container {
+  margin-top: 0; /* gap đã do .col-left / .camera-section lo */
+}
+
+.ai-assistant-box {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color 0.35s,
+    box-shadow 0.35s;
+}
+
+/* ── Header ── */
+.ai-assistant-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.05),
+    rgba(99, 102, 241, 0.05)
+  );
+  border-bottom: 1px solid var(--border);
+}
+
+.ai-avatar {
+  font-size: 17px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.ai-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--indigo);
+  text-transform: uppercase;
+  flex: 1;
+}
+
+/* Chấm trạng thái nhỏ góc phải */
+.ai-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.ai-status-dot.dot-idle {
+  background: var(--text-3);
+}
+.ai-status-dot.dot-good {
+  background: var(--green);
+  animation: dot-pulse 1.5s ease-in-out infinite;
+}
+.ai-status-dot.dot-bad-realtime {
+  background: var(--amber);
+  animation: dot-pulse 0.8s ease-in-out infinite;
+}
+.ai-status-dot.dot-bad-alert {
+  background: var(--red);
+  animation: dot-pulse 0.6s ease-in-out infinite;
+}
+.ai-status-dot.dot-break {
+  background: var(--blue);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+/* ── Body ── */
+.ai-assistant-body {
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ai-content-icon {
+  font-size: 26px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.ai-content-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-1);
+  line-height: 1.3;
+}
+.ai-content-text {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.65;
+  word-break: break-word;
+}
+.ai-content-text strong {
+  color: var(--text-1);
+  font-weight: 700;
+}
+
+/* ── Link tài nguyên (chỉ hiện ở bad_alert) ── */
+.ai-resource-tip {
+  margin: 0 14px 12px;
+  padding: 8px 11px;
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+.ai-resource-tip a {
+  color: var(--blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+.ai-resource-tip a:hover {
+  text-decoration: underline;
+}
+
+/* ════════════════
+   BIẾN THỂ TRẠNG THÁI
+════════════════ */
+
+/* IDLE */
+.ai-state-idle {
+  border-color: var(--border);
+}
+.ai-state-idle .ai-title {
+  color: var(--text-3);
+}
+
+/* GOOD — viền xanh lá, nền nhẹ */
+.ai-state-good {
+  border-color: rgba(34, 197, 94, 0.35);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.06);
+}
+.ai-state-good .ai-assistant-header {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.06),
+    rgba(22, 163, 74, 0.03)
+  );
+}
+.ai-state-good .ai-title {
+  color: #16a34a;
+}
+.ai-state-good .ai-content-title {
+  color: #16a34a;
+}
+
+/* BAD REALTIME — viền cam, nhắc nhẹ */
+.ai-state-bad-realtime {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.08);
+}
+.ai-state-bad-realtime .ai-assistant-header {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.08),
+    rgba(245, 158, 11, 0.03)
+  );
+}
+.ai-state-bad-realtime .ai-title {
+  color: var(--amber);
+}
+.ai-state-bad-realtime .ai-content-title {
+  color: #b45309;
+}
+
+/* BAD ALERT — viền đỏ, rung nhẹ, nghiêm trọng hơn */
+.ai-state-bad-alert {
+  border-color: rgba(239, 68, 68, 0.45);
+  animation: alert-box-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes alert-box-pulse {
+  from {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.08);
+  }
+  to {
+    box-shadow: 0 0 0 5px rgba(239, 68, 68, 0.18);
+  }
+}
+.ai-state-bad-alert .ai-assistant-header {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.08),
+    rgba(239, 68, 68, 0.03)
+  );
+}
+.ai-state-bad-alert .ai-title {
+  color: var(--red);
+}
+.ai-state-bad-alert .ai-content-title {
+  color: var(--red);
+}
+
+/* BREAK — viền xanh dương, thư giãn */
+.ai-state-break {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.06);
+}
+.ai-state-break .ai-assistant-header {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.08),
+    rgba(99, 102, 241, 0.03)
+  );
+}
+.ai-state-break .ai-title {
+  color: var(--indigo);
+}
+
+/* ════════════════════════════════════════════════════════
+   POPUP CẢNH BÁO OVERLAY
+════════════════════════════════════════════════════════ */
 .timer-popup-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 20, 40, 0.55);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 20, 40, 0.45);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,43 +379,40 @@
   opacity: 0;
   visibility: hidden;
   transition:
-    opacity 0.25s ease,
-    visibility 0.25s ease;
+    opacity 0.25s,
+    visibility 0.25s;
 }
-
 .timer-popup-overlay.visible {
   opacity: 1;
   visibility: visible;
 }
 
 .timer-popup-card {
-  background: var(--clr-bg-panel);
-  border-radius: 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
   padding: 36px 40px;
-  max-width: 380px;
-  width: 90%;
+  max-width: 400px;
+  width: 92%;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-  border: 1.5px solid var(--clr-border);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.13);
   transform: scale(0.9);
-  transition: transform 0.25s ease;
+  transition: transform 0.25s;
 }
-
 .timer-popup-overlay.visible .timer-popup-card {
   transform: scale(1);
 }
 
 .timer-popup-emoji {
-  font-size: 52px;
+  font-size: 48px;
   margin-bottom: 12px;
   display: block;
   animation: wobble 0.6s ease-in-out 3;
 }
-
 @keyframes wobble {
   0%,
   100% {
-    transform: rotate(0deg);
+    transform: rotate(0);
   }
   25% {
     transform: rotate(-10deg);
@@ -194,38 +423,32 @@
 }
 
 .timer-popup-title {
-  font-family: var(--font-display);
   font-size: 16px;
-  font-weight: 700;
-  color: var(--clr-red);
-  letter-spacing: 1px;
+  font-weight: 800;
+  color: var(--red);
   margin-bottom: 8px;
 }
-
 .timer-popup-msg {
-  font-family: var(--font-mono);
   font-size: 13px;
-  color: var(--clr-text-secondary);
-  line-height: 1.6;
+  color: var(--text-2);
+  line-height: 1.65;
   margin-bottom: 22px;
 }
-
 .timer-popup-btn {
-  background: var(--clr-cyan);
+  background: linear-gradient(135deg, var(--blue), var(--indigo));
   color: #fff;
   border: none;
   padding: 10px 28px;
-  border-radius: 10px;
-  font-family: var(--font-mono);
+  border-radius: var(--r-sm);
+  font-family: var(--font);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  letter-spacing: 1px;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
   transition:
     opacity 0.2s,
     transform 0.15s;
 }
-
 .timer-popup-btn:hover {
   opacity: 0.88;
   transform: translateY(-1px);

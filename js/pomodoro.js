@@ -7,11 +7,10 @@
  *   - 25 phút TẬP TRUNG → Tự động chuyển sang 5 phút NGHỈ NGƠI
  *   - 5 phút NGHỈ NGƠI → Tự động chuyển sang 25 phút TẬP TRUNG
  *   - Nút Bắt đầu / Tạm dừng / Đặt lại
- *   - Theo dõi số vòng Pomodoro đã hoàn thành (tối đa 4 vòng hiển thị)
  *
  * PHỤ THUỘC:
  *   - HTML element có id="pomodoro-section"
- *   - CSS file: css/pomodoro.css (nhúng tự động)
+ *   - CSS file: css/pomodoro.css
  * ============================================================
  */
 
@@ -163,7 +162,7 @@
       roundsDone++;
       isFocus = false;
       timeLeft = BREAK_DURATION;
-      hintEl.textContent = `🎉 Hoàn thành vòng #${roundsDone}! Nghỉ 5 phút nào ☕`;
+      hintEl.textContent = `🎉 Hoàn thành 25 phút học tập #${roundsDone}! Nghỉ ngơi 5 phút nào ☕`;
       playDing(880, 1100); // Âm vui (cao)
     } else {
       // Vừa xong phiên NGHỈ → chuyển sang TẬP TRUNG
@@ -189,7 +188,7 @@
     btnPause.disabled = false;
     hintEl.textContent = isFocus
       ? "🎯 Đang tập trung... Tắt mạng xã hội đi!"
-      : "☕ Đang nghỉ ngơi...";
+      : "☕ Đang chill...";
 
     // Bắt đầu vòng lặp đếm ngược (1 giây/lần)
     intervalId = setInterval(() => {
@@ -200,7 +199,7 @@
         // Cập nhật hint khi còn ít giây
         if (timeLeft === 10) {
           hintEl.textContent = isFocus
-            ? "⏰ Còn 10 giây tập trung!"
+            ? "⏰ Còn 10 giây học tập!"
             : "⏰ Còn 10 giây nghỉ!";
         }
       } else {
@@ -241,11 +240,52 @@
     btnPause.disabled = true;
     hintEl.textContent = "↺ Đã đặt lại. Nhấn Bắt đầu để bắt đầu mới.";
 
+    // Reset nút "Nghỉ nhanh 5p" nếu đang bị khóa
+    const testBtn = document.getElementById("test-break-btn");
+    if (testBtn) {
+      testBtn.textContent = "☕ Nghỉ nhanh 5p";
+      testBtn.disabled = false;
+    }
+
     updateUI();
   });
 
   // ============================================================
-  // 9. KHỞI CHẠY LẦN ĐẦU
+  // 9. HÀM TOÀN CỤC — Kích hoạt phiên nghỉ từ bên ngoài
+  //    timer.js sẽ gọi hàm này khi người dùng bấm nút "Nghỉ nhanh"
+  // ============================================================
+  window.triggerPomoBreak = function () {
+    // Dừng interval hiện tại nếu đang chạy
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+
+    // Chuyển sang chế độ NGHỈ với 5 phút đầy đủ
+    isFocus = false;
+    timeLeft = BREAK_DURATION;
+    isRunning = true;
+
+    btnStart.disabled = true;
+    btnPause.disabled = false;
+    if (hintEl) hintEl.textContent = "☕ Đang nghỉ nhanh 5 phút...";
+
+    updateUI();
+
+    // Khởi động đồng hồ đếm ngược ngay lập tức
+    intervalId = setInterval(() => {
+      if (timeLeft > 0) {
+        timeLeft--;
+        updateUI();
+        if (timeLeft === 10) hintEl.textContent = "⏰ Còn 10 giây nghỉ!";
+      } else {
+        switchSession(); // Hết nghỉ → tự chuyển về tập trung
+      }
+    }, 1000);
+  };
+
+  // ============================================================
+  // 10. KHỞI CHẠY LẦN ĐẦU
   // ============================================================
   updateUI();
 })();
